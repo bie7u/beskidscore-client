@@ -1,0 +1,88 @@
+{
+  "seasons": [
+    {
+      "id": "2025",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "pl"
+    },
+    {
+      "id": "2024",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "pl"
+    },
+    {
+      "id": "2023",
+      "year": "2023",
+      "name": "2023/24",
+      "leagueId": "pl"
+    },
+    {
+      "id": "2025-laliga",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "laliga"
+    },
+    {
+      "id": "2024-laliga",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "laliga"
+    },
+    {
+      "id": "2023-laliga",
+      "year": "2023",
+      "name": "2023/24",
+      "leagueId": "laliga"
+    },
+    {
+      "id": "2025-bundesliga",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "bundesliga"
+    },
+    {
+      "id": "2024-bundesliga",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "bundesliga"
+    },
+    {
+      "id": "2025-seriea",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "seriea"
+    },
+    {
+      "id": "2024-seriea",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "seriea"
+    },
+    {
+      "id": "2025-ligue1",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "ligue1"
+    },
+    {
+      "id": "2024-ligue1",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "ligue1"
+    },
+    {
+      "id": "2025-ucl",
+      "year": "2025",
+      "name": "2025/26",
+      "leagueId": "ucl"
+    },
+    {
+      "id": "2024-ucl",
+      "year": "2024",
+      "name": "2024/25",
+      "leagueId": "ucl"
+    }
+  ]
+}

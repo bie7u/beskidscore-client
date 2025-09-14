@@ -1,0 +1,132 @@
+{
+  "matches": [
+    {
+      "id": "match1",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "homeTeam": {
+        "id": "mu",
+        "name": "Manchester United",
+        "score": 2
+      },
+      "awayTeam": {
+        "id": "lfc",
+        "name": "Liverpool",
+        "score": 1
+      },
+      "status": "LIVE",
+      "minute": 67,
+      "date": "2025-08-05T15:00:00Z",
+      "venue": "Old Trafford"
+    },
+    {
+      "id": "match2",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "homeTeam": {
+        "id": "mcfc",
+        "name": "Manchester City",
+        "score": 3
+      },
+      "awayTeam": {
+        "id": "afc",
+        "name": "Arsenal",
+        "score": 1
+      },
+      "status": "FINISHED",
+      "date": "2025-08-05T12:30:00Z",
+      "venue": "Etihad Stadium"
+    },
+    {
+      "id": "match3",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "homeTeam": {
+        "id": "cfc",
+        "name": "Chelsea",
+        "score": null
+      },
+      "awayTeam": {
+        "id": "thfc",
+        "name": "Tottenham",
+        "score": null
+      },
+      "status": "SCHEDULED",
+      "date": "2025-08-05T17:30:00Z",
+      "venue": "Stamford Bridge"
+    },
+    {
+      "id": "match4",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "homeTeam": {
+        "id": "nufc",
+        "name": "Newcastle United",
+        "score": 0
+      },
+      "awayTeam": {
+        "id": "whu",
+        "name": "West Ham United",
+        "score": 0
+      },
+      "status": "LIVE",
+      "minute": 34,
+      "date": "2025-08-05T15:00:00Z",
+      "venue": "St. James' Park"
+    },
+    {
+      "id": "match5",
+      "leagueId": "laliga",
+      "seasonId": "2025-laliga",
+      "homeTeam": {
+        "id": "rm",
+        "name": "Real Madrid",
+        "score": 2
+      },
+      "awayTeam": {
+        "id": "fcb",
+        "name": "Barcelona",
+        "score": 3
+      },
+      "status": "FINISHED",
+      "date": "2025-08-04T20:00:00Z",
+      "venue": "Santiago Bernabéu"
+    },
+    {
+      "id": "match6",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "homeTeam": {
+        "id": "bha",
+        "name": "Brighton & Hove Albion",
+        "score": null
+      },
+      "awayTeam": {
+        "id": "avfc",
+        "name": "Aston Villa",
+        "score": null
+      },
+      "status": "SCHEDULED",
+      "date": "2025-08-06T14:00:00Z",
+      "venue": "Amex Stadium"
+    },
+    {
+      "id": "match7",
+      "leagueId": "bundesliga",
+      "seasonId": "2025-bundesliga",
+      "homeTeam": {
+        "id": "fcbm",
+        "name": "Bayern Munich",
+        "score": 4
+      },
+      "awayTeam": {
+        "id": "bvb",
+        "name": "Borussia Dortmund",
+        "score": 2
+      },
+      "status": "FINISHED",
+      "date": "2025-08-04T18:30:00Z",
+      "venue": "Allianz Arena"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "teams": [
+    {
+      "id": "mu",
+      "name": "Manchester United",
+      "logo": "/assets/team-logos/manchester-united.png"
+    },
+    {
+      "id": "lfc",
+      "name": "Liverpool",
+      "logo": "/assets/team-logos/liverpool.png"
+    },
+    {
+      "id": "mcfc",
+      "name": "Manchester City",
+      "logo": "/assets/team-logos/manchester-city.png"
+    },
+    {
+      "id": "cfc",
+      "name": "Chelsea",
+      "logo": "/assets/team-logos/chelsea.png"
+    },
+    {
+      "id": "afc",
+      "name": "Arsenal",
+      "logo": "/assets/team-logos/arsenal.png"
+    },
+    {
+      "id": "thfc",
+      "name": "Tottenham",
+      "logo": "/assets/team-logos/tottenham.png"
+    },
+    {
+      "id": "nufc",
+      "name": "Newcastle United",
+      "logo": "/assets/team-logos/newcastle.png"
+    },
+    {
+      "id": "whu",
+      "name": "West Ham United",
+      "logo": "/assets/team-logos/west-ham.png"
+    },
+    {
+      "id": "bha",
+      "name": "Brighton & Hove Albion",
+      "logo": "/assets/team-logos/brighton.png"
+    },
+    {
+      "id": "avfc",
+      "name": "Aston Villa",
+      "logo": "/assets/team-logos/aston-villa.png"
+    },
+    {
+      "id": "rm",
+      "name": "Real Madrid",
+      "logo": "/assets/team-logos/real-madrid.png"
+    },
+    {
+      "id": "fcb",
+      "name": "Barcelona",
+      "logo": "/assets/team-logos/barcelona.png"
+    },
+    {
+      "id": "am",
+      "name": "Atletico Madrid",
+      "logo": "/assets/team-logos/atletico-madrid.png"
+    },
+    {
+      "id": "fcbm",
+      "name": "Bayern Munich",
+      "logo": "/assets/team-logos/bayern-munich.png"
+    },
+    {
+      "id": "bvb",
+      "name": "Borussia Dortmund",
+      "logo": "/assets/team-logos/borussia-dortmund.png"
+    }
+  ]
+}

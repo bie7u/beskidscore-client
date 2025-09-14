@@ -1,0 +1,40 @@
+{
+  "leagues": [
+    {
+      "id": "pl",
+      "name": "Premier League",
+      "country": "England",
+      "logo": "/assets/team-logos/premier-league.png"
+    },
+    {
+      "id": "laliga",
+      "name": "La Liga",
+      "country": "Spain",
+      "logo": "/assets/team-logos/la-liga.png"
+    },
+    {
+      "id": "bundesliga",
+      "name": "Bundesliga",
+      "country": "Germany",
+      "logo": "/assets/team-logos/bundesliga.png"
+    },
+    {
+      "id": "seriea",
+      "name": "Serie A",
+      "country": "Italy",
+      "logo": "/assets/team-logos/serie-a.png"
+    },
+    {
+      "id": "ligue1",
+      "name": "Ligue 1",
+      "country": "France",
+      "logo": "/assets/team-logos/ligue-1.png"
+    },
+    {
+      "id": "ucl",
+      "name": "UEFA Champions League",
+      "country": "Europe",
+      "logo": "/assets/team-logos/champions-league.png"
+    }
+  ]
+}

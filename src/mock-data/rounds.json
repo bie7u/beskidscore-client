@@ -1,0 +1,139 @@
+{
+  "rounds": [
+    {
+      "id": "pl-2025-1",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "roundNumber": 1,
+      "name": "Matchday 1",
+      "startDate": "2025-08-16T00:00:00Z",
+      "endDate": "2025-08-18T23:59:59Z"
+    },
+    {
+      "id": "pl-2025-2",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "roundNumber": 2,
+      "name": "Matchday 2",
+      "startDate": "2025-08-23T00:00:00Z",
+      "endDate": "2025-08-25T23:59:59Z"
+    },
+    {
+      "id": "pl-2025-3",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "roundNumber": 3,
+      "name": "Matchday 3",
+      "startDate": "2025-08-30T00:00:00Z",
+      "endDate": "2025-09-01T23:59:59Z"
+    },
+    {
+      "id": "pl-2025-4",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "roundNumber": 4,
+      "name": "Matchday 4",
+      "startDate": "2025-09-13T00:00:00Z",
+      "endDate": "2025-09-15T23:59:59Z"
+    },
+    {
+      "id": "pl-2025-5",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "roundNumber": 5,
+      "name": "Matchday 5",
+      "startDate": "2025-09-20T00:00:00Z",
+      "endDate": "2025-09-22T23:59:59Z"
+    },
+    {
+      "id": "laliga-2025-1",
+      "leagueId": "laliga",
+      "seasonId": "2025-laliga",
+      "roundNumber": 1,
+      "name": "Jornada 1",
+      "startDate": "2025-08-16T00:00:00Z",
+      "endDate": "2025-08-18T23:59:59Z"
+    },
+    {
+      "id": "laliga-2025-2",
+      "leagueId": "laliga",
+      "seasonId": "2025-laliga",
+      "roundNumber": 2,
+      "name": "Jornada 2",
+      "startDate": "2025-08-23T00:00:00Z",
+      "endDate": "2025-08-25T23:59:59Z"
+    },
+    {
+      "id": "bundesliga-2025-1",
+      "leagueId": "bundesliga",
+      "seasonId": "2025-bundesliga",
+      "roundNumber": 1,
+      "name": "Spieltag 1",
+      "startDate": "2025-08-16T00:00:00Z",
+      "endDate": "2025-08-18T23:59:59Z"
+    },
+    {
+      "id": "bundesliga-2025-2",
+      "leagueId": "bundesliga",
+      "seasonId": "2025-bundesliga",
+      "roundNumber": 2,
+      "name": "Spieltag 2",
+      "startDate": "2025-08-23T00:00:00Z",
+      "endDate": "2025-08-25T23:59:59Z"
+    },
+    {
+      "id": "seriea-2025-1",
+      "leagueId": "seriea",
+      "seasonId": "2025-seriea",
+      "roundNumber": 1,
+      "name": "Giornata 1",
+      "startDate": "2025-08-16T00:00:00Z",
+      "endDate": "2025-08-18T23:59:59Z"
+    },
+    {
+      "id": "seriea-2025-2",
+      "leagueId": "seriea",
+      "seasonId": "2025-seriea",
+      "roundNumber": 2,
+      "name": "Giornata 2",
+      "startDate": "2025-08-23T00:00:00Z",
+      "endDate": "2025-08-25T23:59:59Z"
+    },
+    {
+      "id": "ligue1-2025-1",
+      "leagueId": "ligue1",
+      "seasonId": "2025-ligue1",
+      "roundNumber": 1,
+      "name": "Journée 1",
+      "startDate": "2025-08-16T00:00:00Z",
+      "endDate": "2025-08-18T23:59:59Z"
+    },
+    {
+      "id": "ligue1-2025-2",
+      "leagueId": "ligue1",
+      "seasonId": "2025-ligue1",
+      "roundNumber": 2,
+      "name": "Journée 2",
+      "startDate": "2025-08-23T00:00:00Z",
+      "endDate": "2025-08-25T23:59:59Z"
+    },
+    {
+      "id": "ucl-2025-1",
+      "leagueId": "ucl",
+      "seasonId": "2025-ucl",
+      "roundNumber": 1,
+      "name": "Matchday 1",
+      "startDate": "2025-09-17T00:00:00Z",
+      "endDate": "2025-09-18T23:59:59Z"
+    },
+    {
+      "id": "ucl-2025-2",
+      "leagueId": "ucl",
+      "seasonId": "2025-ucl",
+      "roundNumber": 2,
+      "name": "Matchday 2",
+      "startDate": "2025-10-01T00:00:00Z",
+      "endDate": "2025-10-02T23:59:59Z"
+    }
+  ]
+}

@@ -1,0 +1,429 @@
+{
+  "standings": [
+    {
+      "id": "pl-2025-standings",
+      "leagueId": "pl",
+      "seasonId": "2025",
+      "table": [
+        {
+          "position": 1,
+          "teamId": "mcfc",
+          "teamName": "Manchester City",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 8,
+          "goalsAgainst": 2,
+          "goalDifference": 6,
+          "points": 9
+        },
+        {
+          "position": 2,
+          "teamId": "afc",
+          "teamName": "Arsenal",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 6,
+          "goalsAgainst": 3,
+          "goalDifference": 3,
+          "points": 7
+        },
+        {
+          "position": 3,
+          "teamId": "lfc",
+          "teamName": "Liverpool",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 5,
+          "goalsAgainst": 3,
+          "goalDifference": 2,
+          "points": 7
+        },
+        {
+          "position": 4,
+          "teamId": "mu",
+          "teamName": "Manchester United",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 6
+        },
+        {
+          "position": 5,
+          "teamId": "cfc",
+          "teamName": "Chelsea",
+          "played": 3,
+          "won": 1,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 5
+        },
+        {
+          "position": 6,
+          "teamId": "thfc",
+          "teamName": "Tottenham",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "goalDifference": 0,
+          "points": 4
+        },
+        {
+          "position": 7,
+          "teamId": "nufc",
+          "teamName": "Newcastle United",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 2,
+          "goalsAgainst": 4,
+          "goalDifference": -2,
+          "points": 3
+        },
+        {
+          "position": 8,
+          "teamId": "whufc",
+          "teamName": "West Ham United",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 2,
+          "goalsAgainst": 5,
+          "goalDifference": -3,
+          "points": 3
+        },
+        {
+          "position": 9,
+          "teamId": "avfc",
+          "teamName": "Aston Villa",
+          "played": 3,
+          "won": 0,
+          "drawn": 2,
+          "lost": 1,
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "goalDifference": -1,
+          "points": 2
+        },
+        {
+          "position": 10,
+          "teamId": "bhafc",
+          "teamName": "Brighton",
+          "played": 3,
+          "won": 0,
+          "drawn": 1,
+          "lost": 2,
+          "goalsFor": 1,
+          "goalsAgainst": 4,
+          "goalDifference": -3,
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "laliga-2025-standings",
+      "leagueId": "laliga",
+      "seasonId": "2025-laliga",
+      "table": [
+        {
+          "position": 1,
+          "teamId": "real",
+          "teamName": "Real Madrid",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 7,
+          "goalsAgainst": 1,
+          "goalDifference": 6,
+          "points": 9
+        },
+        {
+          "position": 2,
+          "teamId": "barca",
+          "teamName": "Barcelona",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 6,
+          "goalsAgainst": 2,
+          "goalDifference": 4,
+          "points": 7
+        },
+        {
+          "position": 3,
+          "teamId": "atletico",
+          "teamName": "Atlético Madrid",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 6
+        },
+        {
+          "position": 4,
+          "teamId": "sevilla",
+          "teamName": "Sevilla",
+          "played": 3,
+          "won": 1,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "goalDifference": 1,
+          "points": 5
+        },
+        {
+          "position": 5,
+          "teamId": "villarreal",
+          "teamName": "Villarreal",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "goalDifference": 0,
+          "points": 4
+        }
+      ]
+    },
+    {
+      "id": "bundesliga-2025-standings",
+      "leagueId": "bundesliga",
+      "seasonId": "2025-bundesliga",
+      "table": [
+        {
+          "position": 1,
+          "teamId": "bayern",
+          "teamName": "Bayern Munich",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 9,
+          "goalsAgainst": 2,
+          "goalDifference": 7,
+          "points": 9
+        },
+        {
+          "position": 2,
+          "teamId": "dortmund",
+          "teamName": "Borussia Dortmund",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 5,
+          "goalsAgainst": 2,
+          "goalDifference": 3,
+          "points": 7
+        },
+        {
+          "position": 3,
+          "teamId": "leipzig",
+          "teamName": "RB Leipzig",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 6
+        },
+        {
+          "position": 4,
+          "teamId": "leverkusen",
+          "teamName": "Bayer Leverkusen",
+          "played": 3,
+          "won": 1,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "goalDifference": 1,
+          "points": 5
+        },
+        {
+          "position": 5,
+          "teamId": "frankfurt",
+          "teamName": "Eintracht Frankfurt",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "goalDifference": 0,
+          "points": 4
+        }
+      ]
+    },
+    {
+      "id": "seriea-2025-standings",
+      "leagueId": "seriea",
+      "seasonId": "2025-seriea",
+      "table": [
+        {
+          "position": 1,
+          "teamId": "juventus",
+          "teamName": "Juventus",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 6,
+          "goalsAgainst": 1,
+          "goalDifference": 5,
+          "points": 9
+        },
+        {
+          "position": 2,
+          "teamId": "inter",
+          "teamName": "Inter Milan",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 5,
+          "goalsAgainst": 2,
+          "goalDifference": 3,
+          "points": 7
+        },
+        {
+          "position": 3,
+          "teamId": "milan",
+          "teamName": "AC Milan",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 6
+        },
+        {
+          "position": 4,
+          "teamId": "napoli",
+          "teamName": "Napoli",
+          "played": 3,
+          "won": 1,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "goalDifference": 1,
+          "points": 5
+        },
+        {
+          "position": 5,
+          "teamId": "roma",
+          "teamName": "AS Roma",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "goalDifference": 0,
+          "points": 4
+        }
+      ]
+    },
+    {
+      "id": "ligue1-2025-standings",
+      "leagueId": "ligue1",
+      "seasonId": "2025-ligue1",
+      "table": [
+        {
+          "position": 1,
+          "teamId": "psg",
+          "teamName": "Paris Saint-Germain",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 8,
+          "goalsAgainst": 1,
+          "goalDifference": 7,
+          "points": 9
+        },
+        {
+          "position": 2,
+          "teamId": "marseille",
+          "teamName": "Marseille",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 5,
+          "goalsAgainst": 2,
+          "goalDifference": 3,
+          "points": 7
+        },
+        {
+          "position": 3,
+          "teamId": "lyon",
+          "teamName": "Lyon",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDifference": 1,
+          "points": 6
+        },
+        {
+          "position": 4,
+          "teamId": "lille",
+          "teamName": "Lille",
+          "played": 3,
+          "won": 1,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "goalDifference": 1,
+          "points": 5
+        },
+        {
+          "position": 5,
+          "teamId": "monaco",
+          "teamName": "AS Monaco",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "goalDifference": 0,
+          "points": 4
+        }
+      ]
+    }
+  ]
+}

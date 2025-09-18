@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import Live from './pages/Live';
 import MatchDetailsPage from './pages/MatchDetails';
 import LeagueOverview from './pages/LeagueOverview';
+import Blog from './pages/Blog';
+import BlogPostPage from './pages/BlogPost';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
               <Route path="/live" element={<Live />} />
               <Route path="/match/:matchId" element={<MatchDetailsPage />} />
               <Route path="/leagues" element={<LeagueOverview />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
             </Routes>
           </main>
         </div>

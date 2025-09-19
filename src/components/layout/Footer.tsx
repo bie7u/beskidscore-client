@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
           {/* Facebook Button */}
           <div className="flex items-center space-x-2">
             <a
-              href="https://facebook.com/beskidscore"
+              href="https://www.facebook.com/profile.php?id=61579363618910"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"

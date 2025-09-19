@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import type { Match, MatchEvent } from '../utils/types';
 import MatchDetails from '../components/match/MatchDetails';
+import PredictionForm from '../components/prediction/PredictionForm';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { apiService } from '../utils/apiService';
@@ -46,6 +47,11 @@ const MatchDetailsPage: React.FC = () => {
     loadMatchData();
   }, [matchId]);
 
+  const handlePredictionSubmit = (prediction: { homeScore: number; awayScore: number }) => {
+    console.log('Prediction submitted:', prediction);
+    // In a real app, this would send the prediction to the API
+  };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -72,6 +78,16 @@ const MatchDetailsPage: React.FC = () => {
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm sm:text-base">Powrót do meczów</span>
       </button>
+
+      {/* Prediction Form - only for scheduled matches */}
+      {match.status === 'SCHEDULED' && (
+        <div className="mb-6">
+          <PredictionForm 
+            match={match} 
+            onPredictionSubmit={handlePredictionSubmit}
+          />
+        </div>
+      )}
 
       {/* Match Details */}
       <MatchDetails match={match} events={events} />

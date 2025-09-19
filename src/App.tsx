@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Header from './components/layout/Header';
 import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Live from './pages/Live';
 import MatchDetailsPage from './pages/MatchDetails';
@@ -11,10 +12,10 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
           <Header />
           <Navbar />
-          <main>
+          <main className="flex-1">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/live" element={<Live />} />
@@ -22,6 +23,7 @@ function App() {
               <Route path="/leagues" element={<LeagueOverview />} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </ThemeProvider>

@@ -106,15 +106,60 @@ export interface ThemeContextType {
   toggleTheme: () => void;
 }
 
+// User and Authentication types
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  provider: 'google' | 'facebook' | 'guest';
+  totalPoints: number;
+  correctPredictions: number;
+  totalPredictions: number;
+  rank: number;
+  joinDate: string;
+}
+
+export interface Prediction {
+  id: string;
+  userId: string;
+  matchId: number;
+  homeScore: number;
+  awayScore: number;
+  points?: number; // Points earned after match completion
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface UserStats {
+  userId: string;
+  totalPredictions: number;
+  correctResults: number; // Correct winner/draw
+  exactScores: number; // Exact score matches
+  totalPoints: number;
+  rank: number;
+  streak: number; // Current correct prediction streak
+}
+
+export interface AuthContextType {
+  user: User | null;
+  login: (provider: 'google' | 'facebook') => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  loading: boolean;
+}
+
 // Component prop types
 export interface MatchCardProps {
   match: Match;
   onClick?: (match: Match) => void;
+  showPrediction?: boolean;
 }
 
 export interface MatchListProps {
   matches: Match[];
   onMatchClick?: (match: Match) => void;
+  showPredictions?: boolean;
 }
 
 export interface LeagueSelectorProps {

@@ -1,12 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Trophy, Radio } from 'lucide-react';
+import { Home, Trophy, Radio, Target, Award } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Navbar: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
   const navItems = [
     { to: '/', icon: Home, label: 'Strona główna' },
     { to: '/live', icon: Radio, label: 'Na żywo' },
     { to: '/leagues', icon: Trophy, label: 'Ligi' },
+    ...(isAuthenticated ? [
+      { to: '/predictions', icon: Target, label: 'Prognozy' },
+      { to: '/leaderboard', icon: Award, label: 'Ranking' },
+    ] : []),
   ];
 
   return (

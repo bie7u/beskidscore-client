@@ -1,0 +1,96 @@
+{
+  "entries": [
+    {
+      "id": 1,
+      "title": "Wielki mecz o mistrzostwo - relacja na żywo",
+      "slug": "wielki-mecz-o-mistrzostwo-relacja-na-zywo",
+      "content": "## Relacja z meczu\n\nDzisiejszy mecz był absolutnie niesamowity! Obie drużyny pokazały fenomenalną grę.\n\n### Pierwsza połowa\n\nTempa gra od samego początku. Gospodarze zaczęli bardzo ofensywnie.\n\n### Druga połowa\n\nGole, emocje i zwroty akcji. Mecz na najwyższym poziomie!\n\n## Podsumowanie\n\nZwycięstwo zasłużone, ale rywale walczyli do ostatniego gwizdka.",
+      "excerpt": "Relacja z najważniejszego meczu sezonu. Emocje do ostatniej minuty!",
+      "author": 1,
+      "author_name": "Jan Kowalski",
+      "created_at": "2025-01-15T18:30:00Z",
+      "updated_at": "2025-01-15T19:45:00Z",
+      "published": true,
+      "featured_image": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800"
+    },
+    {
+      "id": 2,
+      "title": "Transfery letnie - podsumowanie okienka",
+      "slug": "transfery-letnie-podsumowanie-okienka",
+      "content": "## Najważniejsze transfery sezonu\n\n### Rekordowe kwoty\n\nW tym okienku padły nowe rekordy transferowe.\n\n### Największe niespodzianki\n\nNikt się tego nie spodziewał!\n\n### Wnioski\n\nOkienko transferowe było pełne emocji i niespodzianek.",
+      "excerpt": "Przegląd najważniejszych transferów tego lata. Kto zyskał, a kto stracił?",
+      "author": 2,
+      "author_name": "Anna Nowak",
+      "created_at": "2025-01-10T14:20:00Z",
+      "updated_at": "2025-01-11T09:15:00Z",
+      "published": true,
+      "featured_image": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800"
+    },
+    {
+      "id": 3,
+      "title": "Taktyka i analiza: Jak grać przeciwko defensywie",
+      "slug": "taktyka-i-analiza-jak-grac-przeciwko-defensywie",
+      "content": "## Analiza taktyczna\n\n### Rozkład gry\n\nPrzełamanie defensywy to sztuka. Wymaga cierpliwości i precyzji.\n\n### Kluczowe elementy\n\n1. Rotacja piłki\n2. Tempo gry\n3. Wykorzystanie skrzydeł\n4. Strzały z dystansu\n\n### Przykłady z meczów\n\nNajlepsze drużyny pokazują jak to robić poprawnie.\n\n## Wnioski\n\nDobra taktyka potrafi przełamać nawet najbardziej zwartą obronę.",
+      "excerpt": "Analiza taktyczna - jak pokonać zespół grający głęboką defensywą.",
+      "author": 1,
+      "author_name": "Jan Kowalski",
+      "created_at": "2025-01-08T16:00:00Z",
+      "updated_at": "2025-01-08T17:30:00Z",
+      "published": true,
+      "featured_image": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800"
+    },
+    {
+      "id": 4,
+      "title": "Młody talent sezonu - wywiad",
+      "slug": "mlody-talent-sezonu-wywiad",
+      "content": "## Wywiad z wschodzącą gwiazdą\n\nRozmowa z największą rewelacją sezonu.\n\n**Pytanie**: Jak się czujesz w nowej drużynie?\n\n**Odpowiedź**: Jest świetnie! Zespół mnie wspiera.\n\n**Pytanie**: Jakie masz cele na przyszłość?\n\n**Odpowiedź**: Chcę wygrać mistrzostwo i grać dla reprezentacji.\n\n## Jego statystyki\n\n- Mecze: 25\n- Gole: 12\n- Asysty: 8\n\nImponujące liczby jak na debiutanta!",
+      "excerpt": "Ekskluzywny wywiad z młodym talentem, który zdobywa serca kibiców.",
+      "author": 2,
+      "author_name": "Anna Nowak",
+      "created_at": "2025-01-05T11:00:00Z",
+      "updated_at": "2025-01-05T12:00:00Z",
+      "published": true,
+      "featured_image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"
+    },
+    {
+      "id": 5,
+      "title": "Zapowiedź kolejki: Derby w centrum uwagi",
+      "slug": "zapowiedz-kolejki-derby-w-centrum-uwagi",
+      "content": "## Najbliższa kolejka zapowiada się ekscytująco!\n\n### Derby\n\nNajważniejszy mecz kolejki to oczywiście derby miasta.\n\n### Forma drużyn\n\nObie drużyny są w świetnej formie.\n\n### Typowanie\n\nTrudno wskazać faworyta - może remis?\n\n## Inne ciekawe spotkania\n\nNie tylko derby będą warte uwagi w tej kolejce.",
+      "excerpt": "Zapowiedź najciekawszych meczów nadchodzącej kolejki.",
+      "author": 1,
+      "author_name": "Jan Kowalski",
+      "created_at": "2025-01-03T09:00:00Z",
+      "updated_at": "2025-01-03T10:00:00Z",
+      "published": false,
+      "featured_image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800"
+    },
+    {
+      "id": 6,
+      "title": "Historia klubu: 100 lat tradycji",
+      "slug": "historia-klubu-100-lat-tradycji",
+      "content": "## Jubileusz stulecia\n\nKlub świętuje 100 lat istnienia!\n\n### Początki\n\nWszystko zaczęło się w 1925 roku...\n\n### Złota era\n\nLata 60. i 70. to czas największych sukcesów.\n\n### Współczesność\n\nDziś klub jest jednym z najbardziej utytułowanych w kraju.\n\n## Legendy klubu\n\nPrzypominamy największe gwiazdy w historii zespołu.",
+      "excerpt": "Specjalny artykuł z okazji 100-lecia klubu. Wracamy do korzeni.",
+      "author": 2,
+      "author_name": "Anna Nowak",
+      "created_at": "2025-01-01T10:00:00Z",
+      "updated_at": "2025-01-02T14:30:00Z",
+      "published": false,
+      "featured_image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@beskidscore.pl",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "username": "editor",
+      "email": "editor@beskidscore.pl",
+      "role": "editor"
+    }
+  ]
+}

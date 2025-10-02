@@ -1,4 +1,5 @@
-import type { League, Team, Match, MatchEvent, Standing, Round, Season } from './types';
+import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput } from './types';
+import { authUtils } from './authUtils';
 
 // const API_BASE_URL = import.meta.env.PROD 
 //   ? '/api' 
@@ -8,9 +9,17 @@ import type { League, Team, Match, MatchEvent, Standing, Round, Season } from '.
 const API_BASE_URL = 'https://api.beskidscore.pl/api';
 
 class ApiService {
-  private async fetchData<T>(endpoint: string): Promise<T> {
+  private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
+      const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -21,6 +30,15 @@ class ApiService {
       console.error(`API request failed for ${endpoint}:`, error);
       throw error;
     }
+  }
+
+  private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const headers = {
+      ...authUtils.getAuthHeader(),
+      ...options.headers,
+    };
+
+    return this.fetchData<T>(endpoint, { ...options, headers });
   }
 
   // Leagues
@@ -110,6 +128,54 @@ class ApiService {
   // Health check
   async getHealth(): Promise<{ status: string; message: string }> {
     return this.fetchData<{ status: string; message: string }>('/health');
+  }
+
+  // Authentication
+  async login(credentials: LoginCredentials): Promise<{ tokens: AuthTokens; user: User }> {
+    return this.fetchData<{ tokens: AuthTokens; user: User }>('/auth/login/', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  async refreshToken(refreshToken: string): Promise<{ access: string }> {
+    return this.fetchData<{ access: string }>('/auth/refresh/', {
+      method: 'POST',
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+  }
+
+  async getCurrentUser(): Promise<User> {
+    return this.authenticatedFetch<User>('/auth/me/');
+  }
+
+  // Blog
+  async getBlogEntries(): Promise<BlogEntry[]> {
+    return this.fetchData<BlogEntry[]>('/blog/');
+  }
+
+  async getBlogEntry(id: number): Promise<BlogEntry> {
+    return this.fetchData<BlogEntry>(`/blog/${id}/`);
+  }
+
+  async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
+    return this.authenticatedFetch<BlogEntry>('/blog/', {
+      method: 'POST',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
+    return this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async deleteBlogEntry(id: number): Promise<void> {
+    return this.authenticatedFetch<void>(`/blog/${id}/`, {
+      method: 'DELETE',
+    });
   }
 }
 

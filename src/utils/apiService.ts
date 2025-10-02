@@ -1,5 +1,6 @@
 import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput } from './types';
 import { authUtils } from './authUtils';
+import { mockApiService } from './mockApiService';
 
 // const API_BASE_URL = import.meta.env.PROD 
 //   ? '/api' 
@@ -7,6 +8,9 @@ import { authUtils } from './authUtils';
 
 // const API_BASE_URL = 'http://100.64.0.1:8000/api';
 const API_BASE_URL = 'https://api.beskidscore.pl/api';
+
+// Set to true to use mock data for blog and auth (for development/demo)
+const USE_MOCK_BLOG_API = true;
 
 class ApiService {
   private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -132,6 +136,9 @@ class ApiService {
 
   // Authentication
   async login(credentials: LoginCredentials): Promise<{ tokens: AuthTokens; user: User }> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.login(credentials);
+    }
     return this.fetchData<{ tokens: AuthTokens; user: User }>('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -139,6 +146,9 @@ class ApiService {
   }
 
   async refreshToken(refreshToken: string): Promise<{ access: string }> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.refreshToken(refreshToken);
+    }
     return this.fetchData<{ access: string }>('/auth/refresh/', {
       method: 'POST',
       body: JSON.stringify({ refresh: refreshToken }),
@@ -146,19 +156,31 @@ class ApiService {
   }
 
   async getCurrentUser(): Promise<User> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.getCurrentUser();
+    }
     return this.authenticatedFetch<User>('/auth/me/');
   }
 
   // Blog
   async getBlogEntries(): Promise<BlogEntry[]> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.getBlogEntries();
+    }
     return this.fetchData<BlogEntry[]>('/blog/');
   }
 
   async getBlogEntry(id: number): Promise<BlogEntry> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.getBlogEntry(id);
+    }
     return this.fetchData<BlogEntry>(`/blog/${id}/`);
   }
 
   async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.createBlogEntry(entry);
+    }
     return this.authenticatedFetch<BlogEntry>('/blog/', {
       method: 'POST',
       body: JSON.stringify(entry),
@@ -166,6 +188,9 @@ class ApiService {
   }
 
   async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.updateBlogEntry(id, entry);
+    }
     return this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
       method: 'PATCH',
       body: JSON.stringify(entry),
@@ -173,6 +198,9 @@ class ApiService {
   }
 
   async deleteBlogEntry(id: number): Promise<void> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.deleteBlogEntry(id);
+    }
     return this.authenticatedFetch<void>(`/blog/${id}/`, {
       method: 'DELETE',
     });

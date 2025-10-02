@@ -1,0 +1,132 @@
+import type { BlogEntry, BlogEntryInput, User, AuthTokens, LoginCredentials } from './types';
+import blogData from '../mock-data/blogEntries.json';
+
+// Simulate API delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Mock storage for blog entries (will be lost on page refresh)
+let mockBlogEntries: BlogEntry[] = [...blogData.entries];
+let nextId = Math.max(...mockBlogEntries.map(e => e.id)) + 1;
+
+// Mock users
+const mockUsers = blogData.users as User[];
+
+// Mock tokens
+const MOCK_ACCESS_TOKEN = 'mock-access-token-12345';
+const MOCK_REFRESH_TOKEN = 'mock-refresh-token-67890';
+
+export const mockApiService = {
+  // Authentication
+  async login(credentials: LoginCredentials): Promise<{ tokens: AuthTokens; user: User }> {
+    await delay(500);
+    
+    // Check credentials (simple mock validation)
+    const user = mockUsers.find(u => u.username === credentials.username);
+    
+    if (!user) {
+      throw new Error('Invalid credentials');
+    }
+    
+    // In a real app, we'd validate the password
+    // For mock, accept any password for demo purposes
+    if (credentials.password.length < 3) {
+      throw new Error('Invalid credentials');
+    }
+    
+    return {
+      tokens: {
+        access: MOCK_ACCESS_TOKEN,
+        refresh: MOCK_REFRESH_TOKEN,
+      },
+      user,
+    };
+  },
+
+  async refreshToken(refreshToken: string): Promise<{ access: string }> {
+    await delay(300);
+    
+    if (refreshToken !== MOCK_REFRESH_TOKEN) {
+      throw new Error('Invalid refresh token');
+    }
+    
+    return {
+      access: MOCK_ACCESS_TOKEN,
+    };
+  },
+
+  async getCurrentUser(): Promise<User> {
+    await delay(300);
+    
+    // Return the admin user by default
+    return mockUsers[0];
+  },
+
+  // Blog
+  async getBlogEntries(): Promise<BlogEntry[]> {
+    await delay(500);
+    return [...mockBlogEntries].sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  },
+
+  async getBlogEntry(id: number): Promise<BlogEntry> {
+    await delay(400);
+    const entry = mockBlogEntries.find(e => e.id === id);
+    
+    if (!entry) {
+      throw new Error('Blog entry not found');
+    }
+    
+    return entry;
+  },
+
+  async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
+    await delay(600);
+    
+    const newEntry: BlogEntry = {
+      id: nextId++,
+      ...entry,
+      slug: entry.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+      author: 1, // Admin user
+      author_name: 'Admin User',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      excerpt: entry.excerpt || '',
+      featured_image: entry.featured_image || '',
+    };
+    
+    mockBlogEntries.push(newEntry);
+    return newEntry;
+  },
+
+  async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
+    await delay(600);
+    
+    const index = mockBlogEntries.findIndex(e => e.id === id);
+    
+    if (index === -1) {
+      throw new Error('Blog entry not found');
+    }
+    
+    const updatedEntry: BlogEntry = {
+      ...mockBlogEntries[index],
+      ...entry,
+      updated_at: new Date().toISOString(),
+    };
+    
+    mockBlogEntries[index] = updatedEntry;
+    return updatedEntry;
+  },
+
+  async deleteBlogEntry(id: number): Promise<void> {
+    await delay(500);
+    
+    const index = mockBlogEntries.findIndex(e => e.id === id);
+    
+    if (index === -1) {
+      throw new Error('Blog entry not found');
+    }
+    
+    mockBlogEntries.splice(index, 1);
+  },
+};

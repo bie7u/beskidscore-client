@@ -11,6 +11,8 @@ A modern sports scores and fixtures application built with React, TypeScript, an
 - 📱 **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - ⚽ **Match Details**: Detailed match view with timeline and events
 - 🎯 **Match Events**: Goals, cards, substitutions, and other match events
+- 🔐 **Admin Panel**: JWT-based authentication with role-based access control
+- 📝 **Blog Management**: Create, edit, and manage blog entries (for editors and admins)
 
 ## Tech Stack
 
@@ -95,6 +97,35 @@ src/
 - `npm run build` - Build for production
 - `npm run preview` - Preview the production build
 - `npm run lint` - Run ESLint
+
+## Admin Panel
+
+The application includes a comprehensive admin panel for content management:
+
+### Authentication
+- JWT-based authentication (access + refresh tokens)
+- Login modal accessible from the home page
+- Secure token storage and automatic refresh
+- Role-based access control (Admin/Editor)
+
+### Blog Management
+- Create, edit, and delete blog entries
+- Rich text content editor
+- Publish/draft status control
+- Featured image support
+- Author tracking
+
+### User Roles
+- **Admin**: Full access to all features and entries
+- **Editor**: Can manage only their own blog entries
+
+### Accessing the Admin Panel
+1. Click the "Zaloguj" button in the header
+2. Enter your credentials
+3. Navigate to the admin panel from the user menu
+4. Manage blog entries and content
+
+**Note**: The admin panel requires backend API endpoints to be implemented. See `SERVER_ENDPOINTS_DOCUMENTATION.md` for complete API specifications.
 
 ## Mock Data
 

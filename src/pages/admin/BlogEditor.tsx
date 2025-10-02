@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
+import MDEditor from '@uiw/react-md-editor';
 import { apiService } from '../../utils/apiService';
-import type { BlogEntryInput } from '../../utils/types';
+import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const BlogEditor: React.FC = () => {
@@ -13,6 +14,7 @@ const BlogEditor: React.FC = () => {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
 
   const [formData, setFormData] = useState<BlogEntryInput>({
     title: '',
@@ -20,14 +22,25 @@ const BlogEditor: React.FC = () => {
     excerpt: '',
     published: false,
     featured_image: '',
+    category: undefined,
   });
 
   useEffect(() => {
+    loadCategories();
     if (isEditing) {
       loadEntry();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadCategories = async () => {
+    try {
+      const data = await apiService.getBlogCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  };
 
   const loadEntry = async () => {
     try {
@@ -39,6 +52,7 @@ const BlogEditor: React.FC = () => {
         excerpt: entry.excerpt || '',
         published: entry.published,
         featured_image: entry.featured_image || '',
+        category: entry.category,
       });
       setError('');
     } catch (err) {
@@ -69,12 +83,20 @@ const BlogEditor: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+              name === 'category' ? (value ? Number(value) : undefined) : value,
+    }));
+  };
+
+  const handleContentChange = (value: string | undefined) => {
+    setFormData((prev) => ({
+      ...prev,
+      content: value || '',
     }));
   };
 
@@ -133,6 +155,28 @@ const BlogEditor: React.FC = () => {
           />
         </div>
 
+        {/* Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Kategoria
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category || ''}
+            onChange={handleChange}
+            disabled={saving}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+          >
+            <option value="">Brak kategorii</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Excerpt */}
         <div>
           <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -153,19 +197,23 @@ const BlogEditor: React.FC = () => {
         {/* Content */}
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Treść *
+            Treść * (obsługuje Markdown i HTML)
           </label>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            disabled={saving}
-            rows={15}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 font-mono text-sm"
-            placeholder="Wprowadź treść wpisu (obsługuje Markdown)"
-          />
+          <div data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
+            <MDEditor
+              value={formData.content}
+              onChange={handleContentChange}
+              preview="edit"
+              height={400}
+              textareaProps={{
+                disabled: saving,
+                placeholder: 'Wprowadź treść wpisu używając Markdown...'
+              }}
+            />
+          </div>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Obsługuje formatowanie Markdown: **pogrubienie**, *kursywa*, # nagłówki, [linki](url), ![obrazy](url)
+          </p>
         </div>
 
         {/* Featured Image */}

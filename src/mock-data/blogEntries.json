@@ -1,4 +1,36 @@
 {
+  "categories": [
+    {
+      "id": 1,
+      "name": "Relacje z meczów",
+      "slug": "relacje-z-meczy"
+    },
+    {
+      "id": 2,
+      "name": "Transfery",
+      "slug": "transfery"
+    },
+    {
+      "id": 3,
+      "name": "Analiza taktyczna",
+      "slug": "analiza-taktyczna"
+    },
+    {
+      "id": 4,
+      "name": "Wywiady",
+      "slug": "wywiady"
+    },
+    {
+      "id": 5,
+      "name": "Zapowiedzi",
+      "slug": "zapowiedzi"
+    },
+    {
+      "id": 6,
+      "name": "Historia",
+      "slug": "historia"
+    }
+  ],
   "entries": [
     {
       "id": 1,
@@ -11,7 +43,9 @@
       "created_at": "2025-01-15T18:30:00Z",
       "updated_at": "2025-01-15T19:45:00Z",
       "published": true,
-      "featured_image": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800",
+      "category": 1,
+      "category_name": "Relacje z meczów"
     },
     {
       "id": 2,
@@ -24,7 +58,9 @@
       "created_at": "2025-01-10T14:20:00Z",
       "updated_at": "2025-01-11T09:15:00Z",
       "published": true,
-      "featured_image": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800",
+      "category": 2,
+      "category_name": "Transfery"
     },
     {
       "id": 3,
@@ -37,7 +73,9 @@
       "created_at": "2025-01-08T16:00:00Z",
       "updated_at": "2025-01-08T17:30:00Z",
       "published": true,
-      "featured_image": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800",
+      "category": 3,
+      "category_name": "Analiza taktyczna"
     },
     {
       "id": 4,
@@ -50,7 +88,9 @@
       "created_at": "2025-01-05T11:00:00Z",
       "updated_at": "2025-01-05T12:00:00Z",
       "published": true,
-      "featured_image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800",
+      "category": 4,
+      "category_name": "Wywiady"
     },
     {
       "id": 5,
@@ -63,7 +103,9 @@
       "created_at": "2025-01-03T09:00:00Z",
       "updated_at": "2025-01-03T10:00:00Z",
       "published": false,
-      "featured_image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800",
+      "category": 5,
+      "category_name": "Zapowiedzi"
     },
     {
       "id": 6,
@@ -76,7 +118,9 @@
       "created_at": "2025-01-01T10:00:00Z",
       "updated_at": "2025-01-02T14:30:00Z",
       "published": false,
-      "featured_image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800"
+      "featured_image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800",
+      "category": 6,
+      "category_name": "Historia"
     }
   ],
   "users": [

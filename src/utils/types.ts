@@ -171,6 +171,12 @@ export interface AuthContextType {
 }
 
 // Blog types
+export interface BlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface BlogEntry {
   id: number;
   title: string;
@@ -183,6 +189,8 @@ export interface BlogEntry {
   updated_at: string;
   published: boolean;
   featured_image?: string;
+  category?: number;
+  category_name?: string;
 }
 
 export interface BlogEntryInput {
@@ -191,4 +199,5 @@ export interface BlogEntryInput {
   excerpt?: string;
   published: boolean;
   featured_image?: string;
+  category?: number;
 }

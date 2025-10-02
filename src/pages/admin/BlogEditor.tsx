@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import '../../styles/quill-custom.css';
+import MDEditor from '@uiw/react-md-editor';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -95,36 +93,12 @@ const BlogEditor: React.FC = () => {
     }));
   };
 
-  const handleContentChange = (content: string) => {
+  const handleContentChange = (value: string | undefined) => {
     setFormData((prev) => ({
       ...prev,
-      content,
+      content: value || '',
     }));
   };
-
-  // Quill modules for the rich text editor
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'font': [] }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['link', 'image'],
-      ['clean'],
-    ],
-  };
-
-  const formats = [
-    'header', 'font', 'size',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'list', 'bullet',
-    'align',
-    'link', 'image'
-  ];
 
   if (loading) {
     return (
@@ -223,20 +197,23 @@ const BlogEditor: React.FC = () => {
         {/* Content */}
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Treść *
+            Treść * (obsługuje Markdown i HTML)
           </label>
-          <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
-            <ReactQuill
-              theme="snow"
+          <div data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
+            <MDEditor
               value={formData.content}
               onChange={handleContentChange}
-              modules={modules}
-              formats={formats}
-              readOnly={saving}
-              placeholder="Wprowadź treść wpisu..."
-              className="quill-editor"
+              preview="edit"
+              height={400}
+              textareaProps={{
+                disabled: saving,
+                placeholder: 'Wprowadź treść wpisu używając Markdown...'
+              }}
             />
           </div>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Obsługuje formatowanie Markdown: **pogrubienie**, *kursywa*, # nagłówki, [linki](url), ![obrazy](url)
+          </p>
         </div>
 
         {/* Featured Image */}

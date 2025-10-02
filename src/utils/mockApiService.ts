@@ -1,15 +1,18 @@
-import type { BlogEntry, BlogEntryInput, User, AuthTokens, LoginCredentials } from './types';
+import type { BlogEntry, BlogEntryInput, BlogCategory, User, AuthTokens, LoginCredentials } from './types';
 import blogData from '../mock-data/blogEntries.json';
 
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Mock storage for blog entries (will be lost on page refresh)
-let mockBlogEntries: BlogEntry[] = [...blogData.entries];
+const mockBlogEntries: BlogEntry[] = [...blogData.entries];
 let nextId = Math.max(...mockBlogEntries.map(e => e.id)) + 1;
 
 // Mock users
 const mockUsers = blogData.users as User[];
+
+// Mock categories
+const mockCategories: BlogCategory[] = [...blogData.categories];
 
 // Mock tokens
 const MOCK_ACCESS_TOKEN = 'mock-access-token-12345';
@@ -83,6 +86,8 @@ export const mockApiService = {
   async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
     await delay(600);
     
+    const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
+    
     const newEntry: BlogEntry = {
       id: nextId++,
       ...entry,
@@ -93,10 +98,17 @@ export const mockApiService = {
       updated_at: new Date().toISOString(),
       excerpt: entry.excerpt || '',
       featured_image: entry.featured_image || '',
+      category: entry.category,
+      category_name: category?.name,
     };
     
     mockBlogEntries.push(newEntry);
     return newEntry;
+  },
+
+  async getBlogCategories(): Promise<BlogCategory[]> {
+    await delay(300);
+    return [...mockCategories];
   },
 
   async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
@@ -108,9 +120,12 @@ export const mockApiService = {
       throw new Error('Blog entry not found');
     }
     
+    const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
+    
     const updatedEntry: BlogEntry = {
       ...mockBlogEntries[index],
       ...entry,
+      category_name: category?.name || mockBlogEntries[index].category_name,
       updated_at: new Date().toISOString(),
     };
     

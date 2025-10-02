@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import '../../styles/quill-custom.css';
 import { apiService } from '../../utils/apiService';
-import type { BlogEntryInput } from '../../utils/types';
+import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const BlogEditor: React.FC = () => {
@@ -13,6 +16,7 @@ const BlogEditor: React.FC = () => {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
 
   const [formData, setFormData] = useState<BlogEntryInput>({
     title: '',
@@ -20,14 +24,25 @@ const BlogEditor: React.FC = () => {
     excerpt: '',
     published: false,
     featured_image: '',
+    category: undefined,
   });
 
   useEffect(() => {
+    loadCategories();
     if (isEditing) {
       loadEntry();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadCategories = async () => {
+    try {
+      const data = await apiService.getBlogCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  };
 
   const loadEntry = async () => {
     try {
@@ -39,6 +54,7 @@ const BlogEditor: React.FC = () => {
         excerpt: entry.excerpt || '',
         published: entry.published,
         featured_image: entry.featured_image || '',
+        category: entry.category,
       });
       setError('');
     } catch (err) {
@@ -69,14 +85,46 @@ const BlogEditor: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+              name === 'category' ? (value ? Number(value) : undefined) : value,
     }));
   };
+
+  const handleContentChange = (content: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      content,
+    }));
+  };
+
+  // Quill modules for the rich text editor
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'font': [] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['link', 'image'],
+      ['clean'],
+    ],
+  };
+
+  const formats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'list', 'bullet',
+    'align',
+    'link', 'image'
+  ];
 
   if (loading) {
     return (
@@ -133,6 +181,28 @@ const BlogEditor: React.FC = () => {
           />
         </div>
 
+        {/* Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Kategoria
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category || ''}
+            onChange={handleChange}
+            disabled={saving}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+          >
+            <option value="">Brak kategorii</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Excerpt */}
         <div>
           <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -155,17 +225,18 @@ const BlogEditor: React.FC = () => {
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Treść *
           </label>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            disabled={saving}
-            rows={15}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 font-mono text-sm"
-            placeholder="Wprowadź treść wpisu (obsługuje Markdown)"
-          />
+          <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
+            <ReactQuill
+              theme="snow"
+              value={formData.content}
+              onChange={handleContentChange}
+              modules={modules}
+              formats={formats}
+              readOnly={saving}
+              placeholder="Wprowadź treść wpisu..."
+              className="quill-editor"
+            />
+          </div>
         </div>
 
         {/* Featured Image */}

@@ -114,6 +114,9 @@ const BlogManagement: React.FC = () => {
                     Tytuł
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Kategoria
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Autor
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -134,6 +137,15 @@ const BlogManagement: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {entry.title}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {entry.category_name ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+                          {entry.category_name}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600 dark:text-gray-400">

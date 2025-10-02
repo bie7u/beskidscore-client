@@ -1,4 +1,4 @@
-import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput } from './types';
+import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput, BlogCategory } from './types';
 import { authUtils } from './authUtils';
 import { mockApiService } from './mockApiService';
 
@@ -204,6 +204,13 @@ class ApiService {
     return this.authenticatedFetch<void>(`/blog/${id}/`, {
       method: 'DELETE',
     });
+  }
+
+  async getBlogCategories(): Promise<BlogCategory[]> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.getBlogCategories();
+    }
+    return this.fetchData<BlogCategory[]>('/blog/categories/');
   }
 }
 

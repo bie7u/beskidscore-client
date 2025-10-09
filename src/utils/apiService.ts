@@ -10,7 +10,7 @@ import { mockApiService } from './mockApiService';
 const API_BASE_URL = 'https://api.beskidscore.pl/api';
 
 // Set to true to use mock data for blog and auth (for development/demo)
-const USE_MOCK_BLOG_API = true;
+const USE_MOCK_BLOG_API = false;
 
 class ApiService {
   private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

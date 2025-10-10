@@ -13,6 +13,9 @@ const API_BASE_URL = 'https://api.beskidscore.pl/api';
 const USE_MOCK_BLOG_API = false;
 
 class ApiService {
+  private isRefreshing = false;
+  private refreshPromise: Promise<void> | null = null;
+
   private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
       const headers = {
@@ -26,6 +29,13 @@ class ApiService {
       });
       
       if (!response.ok) {
+        // Return response for 401 handling in authenticatedFetch
+        if (response.status === 401) {
+          const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status: number; response: Response };
+          error.status = response.status;
+          error.response = response;
+          throw error;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -37,12 +47,63 @@ class ApiService {
   }
 
   private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const headers = {
-      ...authUtils.getAuthHeader(),
-      ...options.headers,
-    };
+    try {
+      const headers = {
+        ...authUtils.getAuthHeader(),
+        ...options.headers,
+      };
 
-    return this.fetchData<T>(endpoint, { ...options, headers });
+      return await this.fetchData<T>(endpoint, { ...options, headers });
+    } catch (error: unknown) {
+      // Handle 401 errors by attempting to refresh the token
+      const err = error as { status?: number };
+      if (err.status === 401 && !endpoint.includes('/auth/refresh/')) {
+        // If we're already refreshing, wait for that to complete
+        if (this.isRefreshing && this.refreshPromise) {
+          await this.refreshPromise;
+        } else {
+          // Start refresh process
+          this.isRefreshing = true;
+          this.refreshPromise = this.handleTokenRefresh();
+          
+          try {
+            await this.refreshPromise;
+          } finally {
+            this.isRefreshing = false;
+            this.refreshPromise = null;
+          }
+        }
+
+        // Retry the original request with the new token
+        const newHeaders = {
+          ...authUtils.getAuthHeader(),
+          ...options.headers,
+        };
+        return await this.fetchData<T>(endpoint, { ...options, headers: newHeaders });
+      }
+      
+      throw error;
+    }
+  }
+
+  private async handleTokenRefresh(): Promise<void> {
+    const refreshToken = authUtils.getRefreshToken();
+    
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      const response = await this.refreshToken(refreshToken);
+      const newTokens = { access: response.access, refresh: refreshToken };
+      authUtils.setTokens(newTokens);
+    } catch (error) {
+      // If refresh fails, clear tokens to force re-login
+      authUtils.clearTokens();
+      // Redirect to login or home page
+      window.location.href = '/';
+      throw error;
+    }
   }
 
   // Leagues

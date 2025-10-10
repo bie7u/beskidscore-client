@@ -2,39 +2,33 @@
 
 ## Overview
 
-The BeskidScore client implements an automatic token refresh mechanism to handle expired access tokens seamlessly. When an authenticated API request fails due to an expired access token (401 Unauthorized), the system automatically attempts to refresh the token and retry the request.
+The BeskidScore client implements an automatic token refresh mechanism using **HTTP-only cookies** to handle expired access tokens seamlessly. When an authenticated API request fails due to an expired access token (401 Unauthorized), the system automatically attempts to refresh the token and retry the request.
+
+> **Note**: This application uses HTTP-only cookie-based authentication for enhanced security. For complete documentation, see [HTTP_ONLY_COOKIE_AUTH.md](./HTTP_ONLY_COOKIE_AUTH.md).
 
 ## How It Works
 
 ### 1. Token Storage
-- **Access Token**: Stored in `localStorage` as `access_token`
-- **Refresh Token**: Stored in `localStorage` as `refresh_token`
-- Both tokens are managed by the `authUtils` utility in `src/utils/authUtils.ts`
+- **Access Token**: Stored in HTTP-only cookie (server-side)
+- **Refresh Token**: Stored in HTTP-only cookie (server-side)
+- Both tokens are managed by the server and automatically included in requests
+- Client-side JavaScript cannot access these tokens (XSS protection)
 
 ### 2. Authentication Flow
 
 #### Initial Login
 1. User provides credentials (username and password)
-2. Frontend sends login request to `/api/auth/login/`
-3. Backend responds with:
-   ```json
-   {
-     "tokens": {
-       "access": "eyJ...",
-       "refresh": "eyJ..."
-     },
-     "user": { ... }
-   }
-   ```
-4. Tokens are stored in localStorage
+2. Frontend sends login request to `/api/auth/login/` with `credentials: 'include'`
+3. Backend responds with user data and sets HTTP-only cookies:
+   - `Set-Cookie: access_token=eyJ...; HttpOnly; Secure; SameSite=Lax`
+   - `Set-Cookie: refresh_token=eyJ...; HttpOnly; Secure; SameSite=Lax`
+4. Browser automatically stores cookies
 5. User information is stored in React context
 
 #### Authenticated Requests
 1. For protected endpoints, `authenticatedFetch()` method is used
-2. Access token is automatically attached to request headers:
-   ```
-   Authorization: Bearer <access_token>
-   ```
+2. Access token cookie is automatically included by the browser
+3. No Authorization header needed (cookies are sent automatically)
 
 ### 3. Token Refresh Process
 
@@ -48,29 +42,24 @@ When an access token expires, the following automatic process occurs:
 - Check if token refresh is already in progress
   - If yes: Wait for the ongoing refresh to complete
   - If no: Start new refresh process
-- Send refresh request to `/api/auth/refresh/` with refresh token:
-  ```json
-  {
-    "refresh": "eyJ..."
-  }
+- Send refresh request to `/api/auth/refresh/` with `credentials: 'include'`
+- Refresh token cookie is automatically included by the browser
+- Backend validates refresh token cookie and sets new access token cookie:
   ```
-- Backend validates refresh token and returns new access token:
-  ```json
-  {
-    "access": "eyJ..."
-  }
+  Set-Cookie: access_token=eyJ...; HttpOnly; Secure; SameSite=Lax
   ```
-- Update access token in localStorage
+- Browser automatically updates the access token cookie
 
 #### Step 3: Retry Original Request
-- Retry the failed request with the new access token
+- Retry the failed request with `credentials: 'include'`
+- Browser automatically includes the new access token cookie
 - Return the response to the caller
 
 #### Step 4: Handle Refresh Failure
 If the refresh token is also expired or invalid:
-1. Clear all tokens from localStorage
+1. Clear authentication state on client
 2. Redirect user to home page
-3. User must log in again
+3. User must log in again (server will set new cookies)
 
 ## Implementation Details
 
@@ -84,8 +73,8 @@ class ApiService {
 
   private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
-      // Make authenticated request
-      return await this.fetchData<T>(endpoint, { ...options, headers });
+      // Cookies are automatically included with credentials: 'include'
+      return await this.fetchData<T>(endpoint, options);
     } catch (error: any) {
       // Handle 401 errors
       if (error.status === 401 && !endpoint.includes('/auth/refresh/')) {
@@ -96,7 +85,9 @@ class ApiService {
   }
 
   private async handleTokenRefresh(): Promise<void> {
-    // Refresh the access token
+    // Refresh token cookie is automatically sent
+    await this.refreshToken();
+    // Server sets new access token cookie
   }
 }
 ```
@@ -122,16 +113,22 @@ class ApiService {
 
 ## Security Considerations
 
-1. **Token Storage**: Tokens are stored in localStorage
-   - Vulnerable to XSS attacks
-   - Should be combined with proper Content Security Policy
+1. **Token Storage**: Tokens are stored in HTTP-only cookies
+   - **Protected from XSS attacks** (JavaScript cannot access cookies)
+   - Requires proper CORS configuration with `credentials: 'include'`
+   - Must use HTTPS (Secure flag)
 
 2. **Automatic Redirect**: Failed refresh redirects to home
    - Prevents infinite refresh loops
    - Ensures user re-authenticates with valid credentials
 
-3. **Refresh Token Rotation**: Current implementation reuses refresh token
-   - Backend should implement refresh token rotation for better security
+3. **Refresh Token Rotation**: Backend should implement refresh token rotation
+   - Issue new refresh token on each refresh
+   - Invalidate old refresh token for better security
+
+4. **CSRF Protection**: HTTP-only cookies require CSRF protection
+   - Use SameSite=Lax or SameSite=Strict
+   - Implement CSRF tokens for state-changing requests
 
 ## Usage Example
 
@@ -170,13 +167,13 @@ async getLeagues(): Promise<League[]> {
 To test the token refresh mechanism:
 
 1. **Manually Expire Access Token**
-   - Open browser DevTools → Application → Local Storage
-   - Modify the `access_token` to an invalid value
+   - Open browser DevTools → Application → Cookies
+   - Delete the `access_token` cookie
    - Make an authenticated request
    - Verify token is refreshed automatically
 
 2. **Expire Refresh Token**
-   - Modify both `access_token` and `refresh_token`
+   - Delete both `access_token` and `refresh_token` cookies
    - Make an authenticated request
    - Verify user is redirected to home page
 
@@ -185,11 +182,14 @@ To test the token refresh mechanism:
    - Verify only one refresh request is made
    - Verify all requests complete successfully
 
+> **Note**: With HTTP-only cookies, you cannot modify cookie values via JavaScript. Use browser DevTools to manually delete cookies for testing.
+
 ## Future Improvements
 
 1. **Refresh Token Rotation**
    - Backend should return new refresh token on each refresh
-   - Frontend should update both access and refresh tokens
+   - Frontend automatically receives updated cookie
+   - Enhances security by limiting token lifespan
 
 2. **Proactive Refresh**
    - Decode JWT to check expiration time
@@ -201,7 +201,9 @@ To test the token refresh mechanism:
    - Automatically retry all queued requests
    - Better handling of concurrent requests
 
-4. **Token Storage**
-   - Consider using httpOnly cookies for tokens
-   - Reduces XSS attack surface
-   - Requires backend changes
+4. **CSRF Tokens**
+   - Implement CSRF token validation
+   - Required for state-changing requests with cookies
+   - Complement SameSite cookie protection
+
+For complete documentation on HTTP-only cookie authentication, see [HTTP_ONLY_COOKIE_AUTH.md](./HTTP_ONLY_COOKIE_AUTH.md).

@@ -26,6 +26,7 @@ class ApiService {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers,
+        credentials: 'include', // Important: Include cookies in requests
       });
       
       if (!response.ok) {
@@ -48,12 +49,9 @@ class ApiService {
 
   private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
-      const headers = {
-        ...authUtils.getAuthHeader(),
-        ...options.headers,
-      };
-
-      return await this.fetchData<T>(endpoint, { ...options, headers });
+      // With HTTP-only cookies, no need to add Authorization header
+      // Cookies are automatically included due to credentials: 'include'
+      return await this.fetchData<T>(endpoint, options);
     } catch (error: unknown) {
       // Handle 401 errors by attempting to refresh the token
       const err = error as { status?: number };
@@ -74,12 +72,8 @@ class ApiService {
           }
         }
 
-        // Retry the original request with the new token
-        const newHeaders = {
-          ...authUtils.getAuthHeader(),
-          ...options.headers,
-        };
-        return await this.fetchData<T>(endpoint, { ...options, headers: newHeaders });
+        // Retry the original request (cookies will be updated by refresh)
+        return await this.fetchData<T>(endpoint, options);
       }
       
       throw error;
@@ -87,18 +81,13 @@ class ApiService {
   }
 
   private async handleTokenRefresh(): Promise<void> {
-    const refreshToken = authUtils.getRefreshToken();
-    
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
     try {
-      const response = await this.refreshToken(refreshToken);
-      const newTokens = { access: response.access, refresh: refreshToken };
-      authUtils.setTokens(newTokens);
+      // With HTTP-only cookies, the refresh token is automatically sent
+      // No need to retrieve it from storage
+      await this.refreshToken();
+      // Server will set new cookies automatically
     } catch (error) {
-      // If refresh fails, clear tokens to force re-login
+      // If refresh fails, clear any authentication state
       authUtils.clearTokens();
       // Redirect to login or home page
       window.location.href = '/';
@@ -206,13 +195,14 @@ class ApiService {
     });
   }
 
-  async refreshToken(refreshToken: string): Promise<{ access: string }> {
+  async refreshToken(): Promise<{ access: string }> {
     if (USE_MOCK_BLOG_API) {
-      return mockApiService.refreshToken(refreshToken);
+      // For mock API, we still need to pass a dummy token
+      return mockApiService.refreshToken('mock-refresh-token');
     }
+    // With HTTP-only cookies, no body needed - refresh token cookie is sent automatically
     return this.fetchData<{ access: string }>('/auth/refresh/', {
       method: 'POST',
-      body: JSON.stringify({ refresh: refreshToken }),
     });
   }
 
@@ -221,6 +211,17 @@ class ApiService {
       return mockApiService.getCurrentUser();
     }
     return this.authenticatedFetch<User>('/auth/me/');
+  }
+
+  async logout(): Promise<void> {
+    if (USE_MOCK_BLOG_API) {
+      // Mock logout doesn't need server call
+      return Promise.resolve();
+    }
+    // Call server logout endpoint to clear HTTP-only cookies
+    return this.authenticatedFetch<void>('/auth/logout/', {
+      method: 'POST',
+    });
   }
 
   // Blog

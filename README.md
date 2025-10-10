@@ -2,6 +2,15 @@
 
 A modern sports scores and fixtures application built with React, TypeScript, and Tailwind CSS. This project replicates the core functionality of FlashScore with live match updates, league navigation, and a responsive design.
 
+## 🔐 Authentication
+
+This application uses **HTTP-only cookie-based authentication** for enhanced security:
+- Tokens stored in secure, HTTP-only cookies (protected from XSS attacks)
+- Automatic token refresh mechanism
+- Seamless user experience
+
+For complete authentication documentation, see [HTTP_ONLY_COOKIE_AUTH.md](./HTTP_ONLY_COOKIE_AUTH.md).
+
 ## Features
 
 - 🏆 **Live Scores**: Real-time match updates with live status indicators

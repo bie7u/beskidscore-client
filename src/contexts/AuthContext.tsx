@@ -22,25 +22,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from localStorage
+  // Initialize auth state from server (check if user is authenticated via cookies)
   useEffect(() => {
     const initAuth = async () => {
-      const accessToken = authUtils.getAccessToken();
-      const refreshToken = authUtils.getRefreshToken();
-
-      if (accessToken && refreshToken) {
-        setTokens({ access: accessToken, refresh: refreshToken });
-        
-        try {
-          // Fetch current user data
-          const userData = await apiService.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          console.error('Failed to fetch user data:', error);
-          // Clear invalid tokens
-          authUtils.clearTokens();
-          setTokens(null);
-        }
+      try {
+        // Try to fetch current user - if successful, user is authenticated via cookies
+        const userData = await apiService.getCurrentUser();
+        setUser(userData);
+        // Set dummy tokens for backward compatibility (actual tokens are in HTTP-only cookies)
+        setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
+      } catch (_error) {
+        // User is not authenticated or session expired
+        console.log('User not authenticated or session expired');
+        setUser(null);
+        setTokens(null);
       }
 
       setIsLoading(false);
@@ -53,8 +48,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.login(credentials);
       
-      authUtils.setTokens(response.tokens);
-      setTokens(response.tokens);
+      // Server sets HTTP-only cookies automatically
+      // We just update the client-side state
+      authUtils.setTokens(response.tokens); // No-op, just for logging
+      // Set dummy tokens for backward compatibility
+      setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
       setUser(response.user);
     } catch (error) {
       console.error('Login failed:', error);
@@ -62,29 +60,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    authUtils.clearTokens();
-    setTokens(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      // Call server logout endpoint to clear HTTP-only cookies
+      await apiService.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      // Clear client-side state regardless of server response
+      authUtils.clearTokens(); // No-op, just for logging
+      setTokens(null);
+      setUser(null);
+    }
   };
 
   const refreshAccessToken = async () => {
-    const refreshToken = authUtils.getRefreshToken();
-    
-    if (!refreshToken) {
-      logout();
-      throw new Error('No refresh token available');
-    }
-
     try {
-      const response = await apiService.refreshToken(refreshToken);
-      const newTokens = { access: response.access, refresh: refreshToken };
-      
-      authUtils.setTokens(newTokens);
-      setTokens(newTokens);
+      // With HTTP-only cookies, refresh token is automatically sent
+      await apiService.refreshToken();
+      // Server sets new cookies automatically
+      // Update dummy tokens for backward compatibility
+      setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
     } catch (error) {
       console.error('Token refresh failed:', error);
-      logout();
+      await logout();
       throw error;
     }
   };

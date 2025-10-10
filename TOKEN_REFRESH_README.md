@@ -6,20 +6,26 @@ The frontend was **not automatically refreshing expired access tokens**, causing
 
 ## ✅ Solution Implemented
 
-Added an **automatic token refresh mechanism** that:
+Added an **automatic token refresh mechanism** using **HTTP-only cookies** that:
 - Detects expired access tokens (401 errors)
-- Automatically refreshes the token using the refresh token
+- Automatically refreshes the token using the refresh token cookie
 - Retries the failed request with the new token
 - Provides a seamless user experience
+- **Enhanced security**: Tokens stored in HTTP-only cookies (protected from XSS attacks)
+
+> **Important**: This implementation uses HTTP-only cookies instead of localStorage for better security. See [HTTP_ONLY_COOKIE_AUTH.md](./HTTP_ONLY_COOKIE_AUTH.md) for complete documentation.
 
 ## 📁 Files Changed
 
 ### Code Changes
-- **`src/utils/apiService.ts`** - Core implementation of token refresh logic
+- **`src/utils/apiService.ts`** - Core implementation of token refresh logic with HTTP-only cookies
+- **`src/utils/authUtils.ts`** - Updated for HTTP-only cookie-based authentication
+- **`src/contexts/AuthContext.tsx`** - Updated to work with cookie-based auth
 
 ### Documentation Added
+- **`HTTP_ONLY_COOKIE_AUTH.md`** - Comprehensive HTTP-only cookie authentication guide
 - **`TOKEN_REFRESH_FIX_SUMMARY.md`** - Quick overview and summary
-- **`TOKEN_REFRESH_MECHANISM.md`** - Detailed technical documentation
+- **`TOKEN_REFRESH_MECHANISM.md`** - Detailed technical documentation (updated for cookies)
 - **`TOKEN_REFRESH_FLOW_DIAGRAM.md`** - Visual flow diagrams
 
 ## 🚀 How It Works
@@ -41,11 +47,17 @@ User action → API call → 401 Error → Auto refresh token → Retry API call
 1. User makes an authenticated request (e.g., load blog entries)
 2. Request fails with **401 Unauthorized** (token expired)
 3. System automatically:
-   - Sends refresh request to `/api/auth/refresh/`
-   - Gets new access token
-   - Updates token in localStorage
+   - Sends refresh request to `/api/auth/refresh/` (refresh cookie sent automatically)
+   - Server validates refresh cookie and sets new access token cookie
    - **Retries the original request** with new token
 4. User sees the data without any interruption
+
+### HTTP-Only Cookie Benefits
+
+- ✅ **XSS Protection**: Cookies cannot be accessed via JavaScript
+- ✅ **Automatic Handling**: Browser includes cookies in requests
+- ✅ **CSRF Protection**: SameSite cookie attribute prevents cross-site attacks
+- ✅ **HTTPS Only**: Secure flag ensures encryption in transit
 
 ### Multiple Concurrent Requests
 
@@ -58,6 +70,9 @@ When multiple requests fail at the same time:
 ## 📖 Documentation
 
 ### Quick Start
+👉 Read **`HTTP_ONLY_COOKIE_AUTH.md`** for complete HTTP-only cookie authentication guide
+
+### Legacy Documentation
 👉 Read **`TOKEN_REFRESH_FIX_SUMMARY.md`** for a high-level overview
 
 ### Technical Details
@@ -73,8 +88,8 @@ When multiple requests fail at the same time:
 1. **Test Automatic Refresh:**
    ```
    1. Log in to the application
-   2. Open DevTools → Application → Local Storage
-   3. Find and modify the 'access_token' value (make it invalid)
+   2. Open DevTools → Application → Cookies
+   3. Delete the 'access_token' cookie
    4. Try to access a protected page (e.g., Admin Panel)
    5. ✅ Expected: Page loads successfully (token was refreshed)
    ```
@@ -82,8 +97,8 @@ When multiple requests fail at the same time:
 2. **Test Refresh Token Expiry:**
    ```
    1. Log in to the application
-   2. Open DevTools → Application → Local Storage
-   3. Modify both 'access_token' and 'refresh_token' (make them invalid)
+   2. Open DevTools → Application → Cookies
+   3. Delete both 'access_token' and 'refresh_token' cookies
    4. Try to access a protected page
    5. ✅ Expected: Redirected to home page (need to log in again)
    ```
@@ -91,11 +106,19 @@ When multiple requests fail at the same time:
 3. **Test Concurrent Requests:**
    ```
    1. Log in to the application
-   2. Make the access token invalid (as above)
+   2. Delete the access_token cookie
    3. Open DevTools → Network tab
    4. Navigate to Admin Panel (triggers multiple API calls)
    5. ✅ Expected: Only ONE call to /api/auth/refresh/
    6. ✅ Expected: All other requests succeed after refresh
+   ```
+
+4. **Verify HTTP-Only Flag:**
+   ```
+   1. Log in to the application
+   2. Open DevTools → Console
+   3. Type: document.cookie.includes('access_token')
+   4. ✅ Expected: false (HttpOnly prevents JavaScript access)
    ```
 
 ## 🔑 Key Features
@@ -128,19 +151,26 @@ When multiple requests fail at the same time:
 ## 🔒 Security Notes
 
 ### Current Implementation
-- Tokens stored in `localStorage`
+- Tokens stored in **HTTP-only cookies** (protected from XSS)
 - Automatic cleanup on failure
 - Redirects to prevent unauthorized access
+- **Secure flag**: HTTPS-only transmission
+- **SameSite attribute**: CSRF protection
 
-### Considerations
-- `localStorage` is vulnerable to XSS attacks
-- Use proper Content Security Policy
-- Consider httpOnly cookies for production (requires backend changes)
+### Security Benefits
+
+✅ **XSS Protection**: HTTP-only cookies cannot be accessed via JavaScript  
+✅ **CSRF Protection**: SameSite=Lax prevents cross-site request forgery  
+✅ **Secure Transmission**: Cookies only sent over HTTPS  
+✅ **Automatic Management**: No client-side token handling needed
 
 ### Future Improvements
 1. **Proactive Refresh**: Decode JWT and refresh before expiration
 2. **Token Rotation**: Backend should return new refresh token on each refresh
-3. **Secure Storage**: Use httpOnly cookies instead of localStorage
+3. **CSRF Tokens**: Additional protection for state-changing requests
+4. **Rate Limiting**: Prevent abuse of refresh endpoint
+
+> For detailed security considerations and best practices, see [HTTP_ONLY_COOKIE_AUTH.md](./HTTP_ONLY_COOKIE_AUTH.md)
 
 ## 📊 Affected Endpoints
 
@@ -176,9 +206,12 @@ Open DevTools → Console and look for:
 
 ### Verify Token Storage
 
-Open DevTools → Application → Local Storage:
+Open DevTools → Application → Cookies:
 - `access_token` - Should update after successful refresh
 - `refresh_token` - Should remain the same (unless backend rotates it)
+- Both should have `HttpOnly` and `Secure` flags set
+
+> **Note**: You cannot view token values in DevTools Console due to HttpOnly flag - this is a security feature!
 
 ## ✨ Benefits
 
@@ -197,19 +230,27 @@ Open DevTools → Application → Local Storage:
 
 | Aspect | Before | After |
 |--------|--------|-------|
+| Token Storage | ❌ localStorage | ✅ HTTP-only Cookies |
 | Token Refresh | ❌ Manual | ✅ Automatic |
 | User Experience | ❌ Logged out on expiry | ✅ Seamless |
 | Concurrent Requests | ❌ Multiple refresh calls | ✅ Single refresh |
 | Error Handling | ❌ Generic | ✅ Specific (401 vs others) |
+| XSS Protection | ❌ Vulnerable | ✅ Protected |
 | Documentation | ❌ None | ✅ Comprehensive |
 
 ## 🎉 Result
 
-The token refresh mechanism is now **fully functional** and **well-documented**. Users will experience uninterrupted sessions, and developers have clear documentation for maintenance and future improvements.
+The token refresh mechanism is now **fully functional** with **HTTP-only cookie-based authentication** and **well-documented**. Users benefit from:
+
+✅ **Enhanced Security**: Protected against XSS attacks  
+✅ **Uninterrupted Sessions**: Automatic token renewal  
+✅ **Better Privacy**: No token exposure to JavaScript  
+✅ **Industry Standard**: Following security best practices
 
 ---
 
 **Need more details?** Check the documentation files:
+- **Complete guide**: `HTTP_ONLY_COOKIE_AUTH.md` ⭐ **Start here!**
 - Quick summary: `TOKEN_REFRESH_FIX_SUMMARY.md`
 - Technical docs: `TOKEN_REFRESH_MECHANISM.md`  
 - Visual flows: `TOKEN_REFRESH_FLOW_DIAGRAM.md`

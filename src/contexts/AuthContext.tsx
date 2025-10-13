@@ -27,7 +27,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       try {
         // Try to fetch current user - if successful, user is authenticated via cookies
-        const userData = await apiService.getCurrentUser();
+        // Use skipAutoRefresh=true to prevent infinite loop on initial load
+        const userData = await apiService.getCurrentUser(true);
         setUser(userData);
         // Set dummy tokens for backward compatibility (actual tokens are in HTTP-only cookies)
         setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
@@ -63,7 +64,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       // Call server logout endpoint to clear HTTP-only cookies
-      await apiService.logout();
+      // Skip auto-refresh to avoid unnecessary token refresh attempts during logout
+      await apiService.logout(true);
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {

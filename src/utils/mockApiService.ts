@@ -20,7 +20,7 @@ const MOCK_REFRESH_TOKEN = 'mock-refresh-token-67890';
 
 export const mockApiService = {
   // Authentication
-  async login(credentials: LoginCredentials): Promise<{ tokens: AuthTokens; user: User }> {
+  async login(credentials: LoginCredentials): Promise<{ tokens?: AuthTokens; user: User }> {
     await delay(500);
     
     // Check credentials (simple mock validation)

@@ -185,11 +185,11 @@ class ApiService {
   }
 
   // Authentication
-  async login(credentials: LoginCredentials): Promise<{ tokens: AuthTokens; user: User }> {
+  async login(credentials: LoginCredentials): Promise<{ tokens?: AuthTokens; user: User }> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.login(credentials);
     }
-    return this.fetchData<{ tokens: AuthTokens; user: User }>('/auth/login/', {
+    return this.fetchData<{ tokens?: AuthTokens; user: User }>('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });

@@ -47,7 +47,7 @@ class ApiService {
     }
   }
 
-  private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async authenticatedFetch<T>(endpoint: string, options: RequestInit = {}, skipAutoRefresh = false): Promise<T> {
     try {
       // With HTTP-only cookies, no need to add Authorization header
       // Cookies are automatically included due to credentials: 'include'
@@ -55,7 +55,7 @@ class ApiService {
     } catch (error: unknown) {
       // Handle 401 errors by attempting to refresh the token
       const err = error as { status?: number };
-      if (err.status === 401 && !endpoint.includes('/auth/refresh/')) {
+      if (err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh) {
         // If we're already refreshing, wait for that to complete
         if (this.isRefreshing && this.refreshPromise) {
           await this.refreshPromise;
@@ -206,14 +206,14 @@ class ApiService {
     });
   }
 
-  async getCurrentUser(): Promise<User> {
+  async getCurrentUser(skipAutoRefresh = false): Promise<User> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.getCurrentUser();
     }
-    return this.authenticatedFetch<User>('/auth/me/');
+    return this.authenticatedFetch<User>('/auth/me/', {}, skipAutoRefresh);
   }
 
-  async logout(): Promise<void> {
+  async logout(skipAutoRefresh = false): Promise<void> {
     if (USE_MOCK_BLOG_API) {
       // Mock logout doesn't need server call
       return Promise.resolve();
@@ -221,7 +221,7 @@ class ApiService {
     // Call server logout endpoint to clear HTTP-only cookies
     return this.authenticatedFetch<void>('/auth/logout/', {
       method: 'POST',
-    });
+    }, skipAutoRefresh);
   }
 
   // Blog

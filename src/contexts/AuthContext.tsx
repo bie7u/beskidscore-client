@@ -51,7 +51,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Server sets HTTP-only cookies automatically
       // We just update the client-side state
-      authUtils.setTokens(response.tokens); // No-op, just for logging
+      if (response.tokens) {
+        authUtils.setTokens(response.tokens); // No-op, just for logging
+      }
       // Set dummy tokens for backward compatibility
       setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
       setUser(response.user);

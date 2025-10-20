@@ -66,11 +66,11 @@ class ApiService {
         errorStatus: err.status,
         hasStatus: 'status' in (err as object),
         skipAutoRefresh,
-        isRefreshEndpoint: endpoint.includes('/auth/refresh/'),
-        shouldRefresh: err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh
+        isRefreshEndpoint: endpoint === '/auth/refresh/',
+        shouldRefresh: err.status === 401 && endpoint !== '/auth/refresh/' && !skipAutoRefresh
       });
       
-      if (err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh) {
+      if (err.status === 401 && endpoint !== '/auth/refresh/' && !skipAutoRefresh) {
         console.log('[AuthenticatedFetch] Token expired, attempting refresh...');
         
         // If we're already refreshing, wait for that to complete

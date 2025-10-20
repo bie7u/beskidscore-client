@@ -30,19 +30,25 @@ class ApiService {
       });
       
       if (!response.ok) {
-        // Return response for 401 handling in authenticatedFetch
-        if (response.status === 401) {
-          const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status: number; response: Response };
-          error.status = response.status;
-          error.response = response;
-          throw error;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Create error object with status for proper error handling
+        const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status: number; response: Response };
+        error.status = response.status;
+        error.response = response;
+        console.error(`API request failed for ${endpoint}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+        throw error;
       }
       
       return await response.json();
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+      // If error doesn't have a status property, it's likely a network error
+      const err = error as Error & { status?: number };
+      if (!err.status) {
+        console.error(`Network error for ${endpoint}:`, error);
+      }
       throw error;
     }
   }
@@ -60,6 +66,7 @@ class ApiService {
         errorStatus: err.status,
         hasStatus: 'status' in (err as object),
         skipAutoRefresh,
+        isRefreshEndpoint: endpoint.includes('/auth/refresh/'),
         shouldRefresh: err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh
       });
       
@@ -69,8 +76,13 @@ class ApiService {
         // If we're already refreshing, wait for that to complete
         if (this.isRefreshing && this.refreshPromise) {
           console.log('[AuthenticatedFetch] Waiting for existing refresh to complete...');
-          await this.refreshPromise;
-          console.log('[AuthenticatedFetch] Existing refresh completed');
+          try {
+            await this.refreshPromise;
+            console.log('[AuthenticatedFetch] Existing refresh completed successfully');
+          } catch (refreshError) {
+            console.log('[AuthenticatedFetch] Existing refresh failed, not retrying request');
+            throw refreshError;
+          }
         } else {
           // Start refresh process
           console.log('[AuthenticatedFetch] Starting new refresh process...');
@@ -80,6 +92,9 @@ class ApiService {
           try {
             await this.refreshPromise;
             console.log('[AuthenticatedFetch] Token refresh successful');
+          } catch (refreshError) {
+            console.log('[AuthenticatedFetch] Token refresh failed');
+            throw refreshError;
           } finally {
             this.isRefreshing = false;
             this.refreshPromise = null;

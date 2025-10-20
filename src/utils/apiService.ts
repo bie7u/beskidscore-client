@@ -55,17 +55,31 @@ class ApiService {
     } catch (error: unknown) {
       // Handle 401 errors by attempting to refresh the token
       const err = error as { status?: number };
+      console.log('[AuthenticatedFetch] Error caught:', {
+        endpoint,
+        errorStatus: err.status,
+        hasStatus: 'status' in (err as object),
+        skipAutoRefresh,
+        shouldRefresh: err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh
+      });
+      
       if (err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh) {
+        console.log('[AuthenticatedFetch] Token expired, attempting refresh...');
+        
         // If we're already refreshing, wait for that to complete
         if (this.isRefreshing && this.refreshPromise) {
+          console.log('[AuthenticatedFetch] Waiting for existing refresh to complete...');
           await this.refreshPromise;
+          console.log('[AuthenticatedFetch] Existing refresh completed');
         } else {
           // Start refresh process
+          console.log('[AuthenticatedFetch] Starting new refresh process...');
           this.isRefreshing = true;
           this.refreshPromise = this.handleTokenRefresh();
           
           try {
             await this.refreshPromise;
+            console.log('[AuthenticatedFetch] Token refresh successful');
           } finally {
             this.isRefreshing = false;
             this.refreshPromise = null;
@@ -73,6 +87,7 @@ class ApiService {
         }
 
         // Retry the original request (cookies will be updated by refresh)
+        console.log('[AuthenticatedFetch] Retrying original request:', endpoint);
         return await this.fetchData<T>(endpoint, options);
       }
       
@@ -82,11 +97,14 @@ class ApiService {
 
   private async handleTokenRefresh(): Promise<void> {
     try {
+      console.log('[HandleTokenRefresh] Calling refresh token endpoint...');
       // With HTTP-only cookies, the refresh token is automatically sent
       // No need to retrieve it from storage
       await this.refreshToken();
+      console.log('[HandleTokenRefresh] Refresh token successful');
       // Server will set new cookies automatically
     } catch (error) {
+      console.error('[HandleTokenRefresh] Refresh token failed:', error);
       // If refresh fails, clear any authentication state
       authUtils.clearTokens();
       // Redirect to login or home page

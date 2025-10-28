@@ -101,9 +101,21 @@ class ApiService {
           }
         }
 
-        // Retry the original request (cookies will be updated by refresh)
-        console.log('[AuthenticatedFetch] Retrying original request:', endpoint);
-        return await this.fetchData<T>(endpoint, options);
+        // Retry the original request once after token refresh
+        // If this retry also fails with 401, don't refresh again - just logout
+        console.log('[AuthenticatedFetch] Retrying original request once after refresh:', endpoint);
+        try {
+          return await this.fetchData<T>(endpoint, options);
+        } catch (retryError: unknown) {
+          const retryErr = retryError as { status?: number };
+          if (retryErr.status === 401) {
+            // Token refresh didn't help, logout user
+            console.log('[AuthenticatedFetch] Retry after refresh still returned 401, logging out user');
+            authUtils.clearTokens();
+            window.location.href = '/';
+          }
+          throw retryError;
+        }
       }
       
       throw error;

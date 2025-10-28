@@ -105,13 +105,16 @@ class ApiService {
         // If this retry also fails with 401, don't refresh again - just logout
         console.log('[AuthenticatedFetch] Retrying original request once after refresh:', endpoint);
         try {
-          return await this.fetchData<T>(endpoint, options);
+          return await this.fetchData<T>(endpoint, { ...options });
         } catch (retryError: unknown) {
           const retryErr = retryError as { status?: number };
           if (retryErr.status === 401) {
             // Token refresh didn't help, logout user
             console.log('[AuthenticatedFetch] Retry after refresh still returned 401, logging out user');
-            authUtils.clearTokens();
+            await this.logout(true).catch(() => {
+              // If logout fails, still clear tokens and redirect
+              authUtils.clearTokens();
+            });
             window.location.href = '/';
           }
           throw retryError;

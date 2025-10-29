@@ -6,8 +6,8 @@ import { mockApiService } from './mockApiService';
 //   ? '/api' 
 //   : 'http://localhost:8000/api';
 
-// const API_BASE_URL = 'http://100.64.0.1:8000/api';
-const API_BASE_URL = 'https://api.beskidscore.pl/api';
+const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'https://api.beskidscore.pl/api';
 
 // Set to true to use mock data for blog and auth (for development/demo)
 const USE_MOCK_BLOG_API = false;

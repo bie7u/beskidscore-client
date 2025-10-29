@@ -26,22 +26,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Try to fetch current user - if successful, user is authenticated via cookies
-        // Use skipAutoRefresh=true to prevent infinite loop on initial load
+        // Pierwsza próba pobrania użytkownika bez automatycznego refresh
         const userData = await apiService.getCurrentUser(true);
         setUser(userData);
-        // Set dummy tokens for backward compatibility (actual tokens are in HTTP-only cookies)
         setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
-      } catch (_error) {
-        // User is not authenticated or session expired
-        console.log('User not authenticated or session expired');
-        setUser(null);
-        setTokens(null);
+      } catch (error: any) {
+        if (error?.status === 401) {
+          // Jednorazowa próba refresh
+          try {
+            await apiService.refreshToken();
+            // Po odświeżeniu spróbuj ponownie pobrać użytkownika
+            const userData = await apiService.getCurrentUser(true);
+            setUser(userData);
+            setTokens({ access: 'cookie-based', refresh: 'cookie-based' });
+            setIsLoading(false);
+            return;
+          } catch (refreshError: any) {
+            // Jeśli po odświeżeniu nadal 401, wyloguj użytkownika
+            console.log('Token refresh failed or user still unauthorized');
+            setUser(null);
+            setTokens(null);
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          // Inne błędy
+          console.log('User not authenticated or session expired');
+          setUser(null);
+          setTokens(null);
+        }
       }
-
       setIsLoading(false);
     };
-
     initAuth();
   }, []);
 

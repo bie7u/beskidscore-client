@@ -53,6 +53,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label="Wybierz kategorie"
         className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between ${
           isOpen ? 'ring-2 ring-primary-500' : ''
         }`}
@@ -72,6 +75,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                   onClick={(e) => handleRemoveCategory(e, category)}
                   className="hover:text-primary-900 dark:hover:text-primary-100"
                   disabled={disabled}
+                  aria-label={`Usuń ${category.name}`}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -83,12 +87,16 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           className={`h-5 w-5 text-gray-400 transition-transform ${
             isOpen ? 'transform rotate-180' : ''
           }`}
+          aria-hidden="true"
         />
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          role="listbox"
+          aria-label="Lista kategorii"
+          className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {categories.length === 0 ? (
             <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">
               Brak dostępnych kategorii
@@ -101,6 +109,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                   <button
                     key={category.id}
                     type="button"
+                    role="option"
+                    aria-selected={selected}
+                    aria-label={`${category.name} (${category.slug})`}
                     onClick={() => {
                       onToggleCategory(category);
                     }}

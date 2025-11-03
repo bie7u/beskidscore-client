@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
@@ -15,6 +15,7 @@ const BlogEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   const [formData, setFormData] = useState<BlogEntryInput>({
     title: '',
@@ -54,6 +55,10 @@ const BlogEditor: React.FC = () => {
         featured_image: entry.featured_image || '',
         category: entry.category,
       });
+      // Set image preview if there's an existing featured image
+      if (entry.featured_image) {
+        setImagePreview(entry.featured_image);
+      }
       setError('');
     } catch (err) {
       setError('Nie udało się załadować wpisu');
@@ -91,6 +96,44 @@ const BlogEditor: React.FC = () => {
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
               name === 'category' ? (value ? Number(value) : undefined) : value,
     }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Proszę wybrać plik obrazu');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Plik jest za duży. Maksymalny rozmiar to 5MB');
+        return;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        featured_image: file,
+      }));
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError('');
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      featured_image: '',
+    }));
+    setImagePreview('');
   };
 
   const handleContentChange = (value: string | undefined) => {
@@ -219,18 +262,50 @@ const BlogEditor: React.FC = () => {
         {/* Featured Image */}
         <div>
           <label htmlFor="featured_image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            URL obrazu wyróżniającego
+            Obraz wyróżniający
           </label>
-          <input
-            id="featured_image"
-            name="featured_image"
-            type="url"
-            value={formData.featured_image}
-            onChange={handleChange}
-            disabled={saving}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-            placeholder="https://example.com/image.jpg"
-          />
+          
+          {imagePreview && (
+            <div className="mb-4 relative">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="max-w-xs h-auto rounded-lg border border-gray-300 dark:border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+                title="Usuń obraz"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          
+          <div className="flex items-center space-x-2">
+            <label
+              htmlFor="featured_image"
+              className={`flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors ${
+                saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+            >
+              <Upload className="h-5 w-5" />
+              <span>{imagePreview ? 'Zmień obraz' : 'Wybierz obraz'}</span>
+            </label>
+            <input
+              id="featured_image"
+              name="featured_image"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={saving}
+              className="hidden"
+            />
+          </div>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Dozwolone formaty: JPG, PNG, GIF. Maksymalny rozmiar: 5MB
+          </p>
         </div>
 
         {/* Published */}

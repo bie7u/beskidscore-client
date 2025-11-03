@@ -18,10 +18,13 @@ class ApiService {
 
   private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      };
+      // Don't set Content-Type header if body is FormData (browser will set it with boundary)
+      const headers: Record<string, string> = options.body instanceof FormData 
+        ? { ...options.headers as Record<string, string> }
+        : {
+            'Content-Type': 'application/json',
+            ...options.headers as Record<string, string>,
+          };
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
@@ -272,24 +275,105 @@ class ApiService {
     return this.fetchData<BlogEntry>(`/blog/${id}/`);
   }
 
+  // Helper method to create FormData from blog entry
+  private createBlogFormData(entry: BlogEntryInput | Partial<BlogEntryInput>, isUpdate: boolean = false): FormData {
+    const formData = new FormData();
+    
+    if (isUpdate) {
+      // For updates, only add fields that are defined
+      if (entry.title) formData.append('title', entry.title);
+      if (entry.content) formData.append('content', entry.content);
+      if (entry.excerpt !== undefined) formData.append('excerpt', entry.excerpt);
+      if (entry.published !== undefined) formData.append('published', String(entry.published));
+      if (entry.category !== undefined) formData.append('category', String(entry.category));
+    } else {
+      // For creation, all required fields must be present
+      const fullEntry = entry as BlogEntryInput;
+      formData.append('title', fullEntry.title);
+      formData.append('content', fullEntry.content);
+      if (fullEntry.excerpt) formData.append('excerpt', fullEntry.excerpt);
+      formData.append('published', String(fullEntry.published));
+      if (fullEntry.category !== undefined) formData.append('category', String(fullEntry.category));
+    }
+    
+    // Add featured_image if it's a File
+    if (entry.featured_image instanceof File) {
+      formData.append('featured_image', entry.featured_image);
+    }
+    
+    return formData;
+  }
+
   async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.createBlogEntry(entry);
     }
-    return this.authenticatedFetch<BlogEntry>('/blog/', {
+    
+    // Check if featured_image is a File object
+    if (entry.featured_image instanceof File) {
+      const formData = this.createBlogFormData(entry, false);
+      
+      const result = await this.authenticatedFetch<BlogEntry>('/blog/', {
+        method: 'POST',
+        body: formData,
+        headers: {}, // Don't set Content-Type, browser will set it with boundary
+      });
+      
+      // Update categories with the new blog ID
+      if (entry.category !== undefined) {
+        await this.updateCategoryBlogLink(entry.category, result.id);
+      }
+      
+      return result;
+    }
+    
+    const result = await this.authenticatedFetch<BlogEntry>('/blog/', {
       method: 'POST',
       body: JSON.stringify(entry),
     });
+    
+    // Update categories with the new blog ID
+    if (entry.category !== undefined) {
+      await this.updateCategoryBlogLink(entry.category, result.id);
+    }
+    
+    return result;
   }
 
   async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.updateBlogEntry(id, entry);
     }
-    return this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+    
+    // Check if featured_image is a File object
+    if (entry.featured_image instanceof File) {
+      const formData = this.createBlogFormData(entry, true);
+      
+      const result = await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {}, // Don't set Content-Type, browser will set it with boundary
+      });
+      
+      // Update categories with the blog ID
+      if (entry.category !== undefined) {
+        await this.updateCategoryBlogLink(entry.category, id);
+      }
+      
+      return result;
+    }
+    
+    const result = await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
       method: 'PATCH',
       body: JSON.stringify(entry),
     });
+    
+    // Update categories with the blog ID
+    if (entry.category !== undefined) {
+      await this.updateCategoryBlogLink(entry.category, id);
+    }
+    
+    return result;
   }
 
   async deleteBlogEntry(id: number): Promise<void> {
@@ -306,6 +390,23 @@ class ApiService {
       return mockApiService.getBlogCategories();
     }
     return this.fetchData<BlogCategory[]>('/blog/categories/');
+  }
+
+  async updateCategoryBlogLink(categoryId: number, blogId: number): Promise<void> {
+    if (USE_MOCK_BLOG_API) {
+      // Mock implementation - no-op for now
+      return Promise.resolve();
+    }
+    try {
+      // Update the category with the blog ID using a more specific endpoint
+      await this.authenticatedFetch<void>(`/blog/categories/${categoryId}/blogs/`, {
+        method: 'POST',
+        body: JSON.stringify({ blog_id: blogId }),
+      });
+    } catch (error) {
+      console.error(`Failed to update category blog link for category ${categoryId} and blog ${blogId}:`, error);
+      // Don't throw error - this is not critical for blog creation/update
+    }
   }
 }
 

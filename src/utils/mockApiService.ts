@@ -88,16 +88,25 @@ export const mockApiService = {
     
     const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
     
+    // Convert File to URL for mock purposes
+    let featuredImageUrl = entry.featured_image;
+    if (entry.featured_image instanceof File) {
+      // For mock purposes, create a placeholder URL
+      featuredImageUrl = `https://via.placeholder.com/800x400?text=${encodeURIComponent(entry.featured_image.name)}`;
+    }
+    
     const newEntry: BlogEntry = {
       id: nextId++,
-      ...entry,
+      title: entry.title,
       slug: entry.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+      content: entry.content,
       author: 1, // Admin user
       author_name: 'Admin User',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      published: entry.published,
       excerpt: entry.excerpt || '',
-      featured_image: entry.featured_image || '',
+      featured_image: typeof featuredImageUrl === 'string' ? featuredImageUrl : '',
       category: entry.category,
       category_name: category?.name,
     };
@@ -122,9 +131,17 @@ export const mockApiService = {
     
     const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
     
+    // Convert File to URL for mock purposes
+    let featuredImageUrl = entry.featured_image;
+    if (entry.featured_image instanceof File) {
+      // For mock purposes, create a placeholder URL
+      featuredImageUrl = `https://via.placeholder.com/800x400?text=${encodeURIComponent(entry.featured_image.name)}`;
+    }
+    
     const updatedEntry: BlogEntry = {
       ...mockBlogEntries[index],
       ...entry,
+      featured_image: typeof featuredImageUrl === 'string' ? featuredImageUrl : mockBlogEntries[index].featured_image,
       category_name: category?.name || mockBlogEntries[index].category_name,
       updated_at: new Date().toISOString(),
     };

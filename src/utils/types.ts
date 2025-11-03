@@ -198,6 +198,6 @@ export interface BlogEntryInput {
   content: string;
   excerpt?: string;
   published: boolean;
-  featured_image?: string;
+  featured_image?: string | File;
   category?: number;
 }

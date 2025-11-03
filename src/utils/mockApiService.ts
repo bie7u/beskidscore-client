@@ -134,6 +134,40 @@ export const mockApiService = {
     return [...mockCategories];
   },
 
+  async createCategory(categoryName: string): Promise<BlogCategory> {
+    await delay(400);
+    const newCategory: BlogCategory = {
+      id: Math.max(...mockCategories.map(c => c.id)) + 1,
+      name: categoryName,
+      slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
+    };
+    mockCategories.push(newCategory);
+    return newCategory;
+  },
+
+  async updateCategory(id: number, categoryName: string): Promise<BlogCategory> {
+    await delay(400);
+    const index = mockCategories.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error('Category not found');
+    }
+    mockCategories[index] = {
+      ...mockCategories[index],
+      name: categoryName,
+      slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
+    };
+    return mockCategories[index];
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    await delay(400);
+    const index = mockCategories.findIndex(c => c.id === id);
+    if (index === -1) {
+      throw new Error('Category not found');
+    }
+    mockCategories.splice(index, 1);
+  },
+
   async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
     await delay(600);
     

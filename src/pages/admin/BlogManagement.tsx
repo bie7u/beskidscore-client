@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, ArrowLeft, FolderOpen } from 'lucide-react';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntry } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -80,13 +80,22 @@ const BlogManagement: React.FC = () => {
             </p>
           </div>
 
-          <Link
-            to="/admin/blog/new"
-            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Nowy wpis</span>
-          </Link>
+          <div className="flex items-center space-x-3">
+            <Link
+              to="/admin/blog/categories"
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+            >
+              <FolderOpen className="h-5 w-5" />
+              <span>Zarządzaj kategoriami</span>
+            </Link>
+            <Link
+              to="/admin/blog/new"
+              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Nowy wpis</span>
+            </Link>
+          </div>
         </div>
       </div>
 

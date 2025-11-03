@@ -189,6 +189,13 @@ const BlogEditor: React.FC = () => {
     try {
       const newCategory = await apiService.createCategory(newCategoryName.trim());
       setCategories([...categories, newCategory]);
+      // Auto-select the newly created category
+      const updatedCategories = [...selectedCategories, newCategory];
+      setSelectedCategories(updatedCategories);
+      setFormData((prev) => ({
+        ...prev,
+        categories: updatedCategories,
+      }));
       setNewCategoryName('');
       setShowCategoryInput(false);
       setError('');

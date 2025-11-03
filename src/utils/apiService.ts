@@ -275,6 +275,11 @@ class ApiService {
     return this.fetchData<BlogEntry>(`/blog/${id}/`);
   }
 
+  // Helper method to extract category IDs from BlogCategory objects or numbers
+  private extractCategoryIds(categories: (BlogCategory | number)[]): number[] {
+    return categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+  }
+
   // Helper method to create FormData from blog entry
   private createBlogFormData(entry: BlogEntryInput | Partial<BlogEntryInput>, isUpdate: boolean = false): FormData {
     const formData = new FormData();
@@ -288,8 +293,9 @@ class ApiService {
       
       // Handle categories array
       if (entry.categories !== undefined && entry.categories.length > 0) {
-        entry.categories.forEach(cat => {
-          formData.append('categories', String(cat.id || cat));
+        const categoryIds = this.extractCategoryIds(entry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
         });
       }
       // Fallback to single category for backward compatibility
@@ -306,8 +312,9 @@ class ApiService {
       
       // Handle categories array
       if (fullEntry.categories !== undefined && fullEntry.categories.length > 0) {
-        fullEntry.categories.forEach(cat => {
-          formData.append('categories', String(cat.id || cat));
+        const categoryIds = this.extractCategoryIds(fullEntry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
         });
       }
       // Fallback to single category for backward compatibility
@@ -350,7 +357,7 @@ class ApiService {
     
     // Handle categories
     if (entry.categories !== undefined && entry.categories.length > 0) {
-      body.categories = entry.categories.map(cat => cat.id || cat);
+      body.categories = this.extractCategoryIds(entry.categories);
     } else if (entry.category !== undefined) {
       body.categories = [entry.category];
     }
@@ -387,7 +394,7 @@ class ApiService {
     
     // Handle categories
     if (entry.categories !== undefined && entry.categories.length > 0) {
-      body.categories = entry.categories.map(cat => cat.id || cat);
+      body.categories = this.extractCategoryIds(entry.categories);
     } else if (entry.category !== undefined) {
       body.categories = [entry.category];
     }

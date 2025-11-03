@@ -4,6 +4,11 @@ import blogData from '../mock-data/blogEntries.json';
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper function to extract category IDs from BlogCategory objects or numbers
+const extractCategoryIds = (categories: (BlogCategory | number)[]): number[] => {
+  return categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+};
+
 // Mock storage for blog entries (will be lost on page refresh)
 const mockBlogEntries: BlogEntry[] = [...blogData.entries];
 let nextId = Math.max(...mockBlogEntries.map(e => e.id)) + 1;
@@ -89,7 +94,7 @@ export const mockApiService = {
     // Get categories from entry
     let categoryIds: number[] = [];
     if (entry.categories && entry.categories.length > 0) {
-      categoryIds = entry.categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+      categoryIds = extractCategoryIds(entry.categories);
     } else if (entry.category) {
       categoryIds = [entry.category];
     }
@@ -141,7 +146,7 @@ export const mockApiService = {
     // Get categories from entry
     let categoryIds: number[] | undefined;
     if (entry.categories && entry.categories.length > 0) {
-      categoryIds = entry.categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+      categoryIds = extractCategoryIds(entry.categories);
     } else if (entry.category) {
       categoryIds = [entry.category];
     }

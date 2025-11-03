@@ -275,6 +275,11 @@ class ApiService {
     return this.fetchData<BlogEntry>(`/blog/${id}/`);
   }
 
+  // Helper method to extract category IDs from BlogCategory objects or numbers
+  private extractCategoryIds(categories: (BlogCategory | number)[]): number[] {
+    return categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+  }
+
   // Helper method to create FormData from blog entry
   private createBlogFormData(entry: BlogEntryInput | Partial<BlogEntryInput>, isUpdate: boolean = false): FormData {
     const formData = new FormData();
@@ -285,7 +290,18 @@ class ApiService {
       if (entry.content) formData.append('content', entry.content);
       if (entry.excerpt !== undefined) formData.append('excerpt', entry.excerpt);
       if (entry.published !== undefined) formData.append('published', String(entry.published));
-      if (entry.category !== undefined) formData.append('category', String(entry.category));
+      
+      // Handle categories array
+      if (entry.categories !== undefined && entry.categories.length > 0) {
+        const categoryIds = this.extractCategoryIds(entry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
+        });
+      }
+      // Fallback to single category for backward compatibility
+      else if (entry.category !== undefined) {
+        formData.append('categories', String(entry.category));
+      }
     } else {
       // For creation, all required fields must be present
       const fullEntry = entry as BlogEntryInput;
@@ -293,7 +309,18 @@ class ApiService {
       formData.append('content', fullEntry.content);
       if (fullEntry.excerpt) formData.append('excerpt', fullEntry.excerpt);
       formData.append('published', String(fullEntry.published));
-      if (fullEntry.category !== undefined) formData.append('category', String(fullEntry.category));
+      
+      // Handle categories array
+      if (fullEntry.categories !== undefined && fullEntry.categories.length > 0) {
+        const categoryIds = this.extractCategoryIds(fullEntry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
+        });
+      }
+      // Fallback to single category for backward compatibility
+      else if (fullEntry.category !== undefined) {
+        formData.append('categories', String(fullEntry.category));
+      }
     }
     
     // Add featured_image if it's a File
@@ -313,31 +340,32 @@ class ApiService {
     if (entry.featured_image instanceof File) {
       const formData = this.createBlogFormData(entry, false);
       
-      const result = await this.authenticatedFetch<BlogEntry>('/blog/', {
+      return await this.authenticatedFetch<BlogEntry>('/blog/', {
         method: 'POST',
         body: formData,
         headers: {}, // Don't set Content-Type, browser will set it with boundary
       });
-      
-      // Update categories with the new blog ID
-      if (entry.category !== undefined) {
-        await this.updateCategoryBlogLink(entry.category, result.id);
-      }
-      
-      return result;
     }
     
-    const result = await this.authenticatedFetch<BlogEntry>('/blog/', {
+    // Prepare JSON body with categories array
+    const body: Record<string, unknown> = {
+      title: entry.title,
+      content: entry.content,
+      excerpt: entry.excerpt,
+      published: entry.published,
+    };
+    
+    // Handle categories
+    if (entry.categories !== undefined && entry.categories.length > 0) {
+      body.categories = this.extractCategoryIds(entry.categories);
+    } else if (entry.category !== undefined) {
+      body.categories = [entry.category];
+    }
+    
+    return await this.authenticatedFetch<BlogEntry>('/blog/', {
       method: 'POST',
-      body: JSON.stringify(entry),
+      body: JSON.stringify(body),
     });
-    
-    // Update categories with the new blog ID
-    if (entry.category !== undefined) {
-      await this.updateCategoryBlogLink(entry.category, result.id);
-    }
-    
-    return result;
   }
 
   async updateBlogEntry(id: number, entry: Partial<BlogEntryInput>): Promise<BlogEntry> {
@@ -349,31 +377,32 @@ class ApiService {
     if (entry.featured_image instanceof File) {
       const formData = this.createBlogFormData(entry, true);
       
-      const result = await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+      return await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
         method: 'PATCH',
         body: formData,
         headers: {}, // Don't set Content-Type, browser will set it with boundary
       });
-      
-      // Update categories with the blog ID
-      if (entry.category !== undefined) {
-        await this.updateCategoryBlogLink(entry.category, id);
-      }
-      
-      return result;
     }
     
-    const result = await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+    // Prepare JSON body with categories array
+    const body: Record<string, unknown> = {};
+    
+    if (entry.title !== undefined) body.title = entry.title;
+    if (entry.content !== undefined) body.content = entry.content;
+    if (entry.excerpt !== undefined) body.excerpt = entry.excerpt;
+    if (entry.published !== undefined) body.published = entry.published;
+    
+    // Handle categories
+    if (entry.categories !== undefined && entry.categories.length > 0) {
+      body.categories = this.extractCategoryIds(entry.categories);
+    } else if (entry.category !== undefined) {
+      body.categories = [entry.category];
+    }
+    
+    return await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
       method: 'PATCH',
-      body: JSON.stringify(entry),
+      body: JSON.stringify(body),
     });
-    
-    // Update categories with the blog ID
-    if (entry.category !== undefined) {
-      await this.updateCategoryBlogLink(entry.category, id);
-    }
-    
-    return result;
   }
 
   async deleteBlogEntry(id: number): Promise<void> {
@@ -389,24 +418,18 @@ class ApiService {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.getBlogCategories();
     }
-    return this.fetchData<BlogCategory[]>('/blog/categories/');
+    return this.fetchData<BlogCategory[]>('/categories/');
   }
 
-  async updateCategoryBlogLink(categoryId: number, blogId: number): Promise<void> {
+  async createCategory(categoryName: string): Promise<BlogCategory> {
     if (USE_MOCK_BLOG_API) {
-      // Mock implementation - no-op for now
-      return Promise.resolve();
+      // Mock implementation
+      return Promise.resolve({ id: Date.now(), name: categoryName, slug: categoryName.toLowerCase().replace(/\s+/g, '-') });
     }
-    try {
-      // Update the category with the blog ID using a more specific endpoint
-      await this.authenticatedFetch<void>(`/blog/categories/${categoryId}/blogs/`, {
-        method: 'POST',
-        body: JSON.stringify({ blog_id: blogId }),
-      });
-    } catch (error) {
-      console.error(`Failed to update category blog link for category ${categoryId} and blog ${blogId}:`, error);
-      // Don't throw error - this is not critical for blog creation/update
-    }
+    return this.authenticatedFetch<BlogCategory>('/categories/', {
+      method: 'POST',
+      body: JSON.stringify({ category: categoryName }),
+    });
   }
 }
 

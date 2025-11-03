@@ -137,7 +137,7 @@ export const mockApiService = {
   async createCategory(categoryName: string): Promise<BlogCategory> {
     await delay(400);
     const newCategory: BlogCategory = {
-      id: Math.max(...mockCategories.map(c => c.id)) + 1,
+      id: mockCategories.length > 0 ? Math.max(...mockCategories.map(c => c.id)) + 1 : 1,
       name: categoryName,
       slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
     };

@@ -324,7 +324,7 @@ const BlogEditor: React.FC = () => {
           />
           
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Możesz wybrać wiele kategorii dla tego wpisu. Slug kategorii (np. "{categories.length > 0 ? categories[0].slug : 'relacje-z-meczy'}") jest używany w adresach URL.
+            Możesz wybrać wiele kategorii dla tego wpisu. Slug kategorii (np. "{(categories && categories.length > 0) ? categories[0].slug : 'relacje-z-meczy'}") jest używany w adresach URL.
           </p>
         </div>
 

@@ -30,11 +30,10 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
   }, [isOpen]);
 
   const handleRemoveCategory = (e: React.MouseEvent, category: BlogCategory) => {

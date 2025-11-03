@@ -286,7 +286,9 @@ const BlogEditor: React.FC = () => {
           <div className="flex items-center space-x-2">
             <label
               htmlFor="featured_image"
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg cursor-pointer transition-colors disabled:opacity-50"
+              className={`flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors ${
+                saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
             >
               <Upload className="h-5 w-5" />
               <span>{imagePreview ? 'Zmień obraz' : 'Wybierz obraz'}</span>

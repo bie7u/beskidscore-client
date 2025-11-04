@@ -427,7 +427,7 @@ class ApiService {
     }
     return this.authenticatedFetch<BlogCategory>('/categories/', {
       method: 'POST',
-      body: JSON.stringify({ category: categoryName }),
+      body: JSON.stringify({ name: categoryName }),
     });
   }
 
@@ -437,7 +437,7 @@ class ApiService {
     }
     return this.authenticatedFetch<BlogCategory>(`/categories/${id}/`, {
       method: 'PUT',
-      body: JSON.stringify({ category: categoryName }),
+      body: JSON.stringify({ name: categoryName }),
     });
   }
 

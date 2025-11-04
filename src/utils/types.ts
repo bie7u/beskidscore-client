@@ -189,6 +189,7 @@ export interface BlogEntry {
   updated_at: string;
   published: boolean;
   featured_image?: string;
+  categories?: number[];
   category?: number;
   category_name?: string;
 }
@@ -198,6 +199,7 @@ export interface BlogEntryInput {
   content: string;
   excerpt?: string;
   published: boolean;
-  featured_image?: string;
+  featured_image?: string | File;
+  categories?: BlogCategory[];
   category?: number;
 }

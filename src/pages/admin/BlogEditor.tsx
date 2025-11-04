@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Plus } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
@@ -15,6 +15,10 @@ const BlogEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<BlogCategory[]>([]);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [showCategoryInput, setShowCategoryInput] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const [formData, setFormData] = useState<BlogEntryInput>({
     title: '',
@@ -22,7 +26,7 @@ const BlogEditor: React.FC = () => {
     excerpt: '',
     published: false,
     featured_image: '',
-    category: undefined,
+    categories: [],
   });
 
   useEffect(() => {
@@ -46,14 +50,35 @@ const BlogEditor: React.FC = () => {
     try {
       setLoading(true);
       const entry = await apiService.getBlogEntry(Number(id));
+      
+      // Find selected categories
+      const selected: BlogCategory[] = [];
+      if (entry.categories && entry.categories.length > 0) {
+        const allCategories = await apiService.getBlogCategories();
+        entry.categories.forEach(catId => {
+          const cat = allCategories.find(c => c.id === catId);
+          if (cat) selected.push(cat);
+        });
+      } else if (entry.category) {
+        // Fallback for old single category format
+        const allCategories = await apiService.getBlogCategories();
+        const cat = allCategories.find(c => c.id === entry.category);
+        if (cat) selected.push(cat);
+      }
+      
+      setSelectedCategories(selected);
       setFormData({
         title: entry.title,
         content: entry.content,
         excerpt: entry.excerpt || '',
         published: entry.published,
         featured_image: entry.featured_image || '',
-        category: entry.category,
+        categories: selected,
       });
+      // Set image preview if there's an existing featured image
+      if (entry.featured_image) {
+        setImagePreview(entry.featured_image);
+      }
       setError('');
     } catch (err) {
       setError('Nie udało się załadować wpisu');
@@ -93,11 +118,91 @@ const BlogEditor: React.FC = () => {
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Proszę wybrać plik obrazu');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Plik jest za duży. Maksymalny rozmiar to 5MB');
+        return;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        featured_image: file,
+      }));
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError('');
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      featured_image: '',
+    }));
+    setImagePreview('');
+  };
+
   const handleContentChange = (value: string | undefined) => {
     setFormData((prev) => ({
       ...prev,
       content: value || '',
     }));
+  };
+
+  const handleCategoryToggle = (category: BlogCategory) => {
+    setSelectedCategories((prev) => {
+      const isSelected = prev.some(c => c.id === category.id);
+      const newSelected = isSelected
+        ? prev.filter(c => c.id !== category.id)
+        : [...prev, category];
+      
+      // Update formData with the new selection
+      setFormData((prevForm) => ({
+        ...prevForm,
+        categories: newSelected,
+      }));
+      
+      return newSelected;
+    });
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      setError('Nazwa kategorii nie może być pusta');
+      return;
+    }
+
+    try {
+      const newCategory = await apiService.createCategory(newCategoryName.trim());
+      setCategories([...categories, newCategory]);
+      // Auto-select the newly created category
+      const updatedCategories = [...selectedCategories, newCategory];
+      setSelectedCategories(updatedCategories);
+      setFormData((prev) => ({
+        ...prev,
+        categories: updatedCategories,
+      }));
+      setNewCategoryName('');
+      setShowCategoryInput(false);
+      setError('');
+    } catch (err) {
+      setError('Nie udało się utworzyć kategorii');
+      console.error(err);
+    }
   };
 
   if (loading) {
@@ -157,24 +262,96 @@ const BlogEditor: React.FC = () => {
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Kategoria
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category || ''}
-            onChange={handleChange}
-            disabled={saving}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-          >
-            <option value="">Brak kategorii</option>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Kategorie
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowCategoryInput(!showCategoryInput)}
+              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 flex items-center space-x-1"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Dodaj kategorię</span>
+            </button>
+          </div>
+          
+          {showCategoryInput && (
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Nazwa nowej kategorii"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleCreateCategory();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+                >
+                  Utwórz
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCategoryInput(false);
+                    setNewCategoryName('');
+                  }}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+                >
+                  Anuluj
+                </button>
+              </div>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-2">
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
+              <label
+                key={category.id}
+                className="flex items-center space-x-2 p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.some(c => c.id === category.id)}
+                  onChange={() => handleCategoryToggle(category)}
+                  disabled={saving}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {category.name}
+                </span>
+              </label>
             ))}
-          </select>
+          </div>
+          
+          {selectedCategories.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {selectedCategories.map((category) => (
+                <span
+                  key={category.id}
+                  className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-200"
+                >
+                  <span>{category.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryToggle(category)}
+                    className="hover:text-primary-900 dark:hover:text-primary-100"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Excerpt */}
@@ -219,18 +396,50 @@ const BlogEditor: React.FC = () => {
         {/* Featured Image */}
         <div>
           <label htmlFor="featured_image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            URL obrazu wyróżniającego
+            Obraz wyróżniający
           </label>
-          <input
-            id="featured_image"
-            name="featured_image"
-            type="url"
-            value={formData.featured_image}
-            onChange={handleChange}
-            disabled={saving}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-            placeholder="https://example.com/image.jpg"
-          />
+          
+          {imagePreview && (
+            <div className="mb-4 relative">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="max-w-xs h-auto rounded-lg border border-gray-300 dark:border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+                title="Usuń obraz"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          
+          <div className="flex items-center space-x-2">
+            <label
+              htmlFor="featured_image"
+              className={`flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors ${
+                saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+            >
+              <Upload className="h-5 w-5" />
+              <span>{imagePreview ? 'Zmień obraz' : 'Wybierz obraz'}</span>
+            </label>
+            <input
+              id="featured_image"
+              name="featured_image"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={saving}
+              className="hidden"
+            />
+          </div>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Dozwolone formaty: JPG, PNG, GIF. Maksymalny rozmiar: 5MB
+          </p>
         </div>
 
         {/* Published */}

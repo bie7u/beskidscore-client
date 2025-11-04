@@ -6,8 +6,8 @@ import { mockApiService } from './mockApiService';
 //   ? '/api' 
 //   : 'http://localhost:8000/api';
 
-// const API_BASE_URL = 'http://100.64.0.1:8000/api';
-const API_BASE_URL = 'https://api.beskidscore.pl/api';
+const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'https://api.beskidscore.pl/api';
 
 // Set to true to use mock data for blog and auth (for development/demo)
 const USE_MOCK_BLOG_API = false;
@@ -18,10 +18,13 @@ class ApiService {
 
   private async fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      };
+      // Don't set Content-Type header if body is FormData (browser will set it with boundary)
+      const headers: Record<string, string> = options.body instanceof FormData 
+        ? { ...options.headers as Record<string, string> }
+        : {
+            'Content-Type': 'application/json',
+            ...options.headers as Record<string, string>,
+          };
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
@@ -30,19 +33,25 @@ class ApiService {
       });
       
       if (!response.ok) {
-        // Return response for 401 handling in authenticatedFetch
-        if (response.status === 401) {
-          const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status: number; response: Response };
-          error.status = response.status;
-          error.response = response;
-          throw error;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Create error object with status for proper error handling
+        const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status: number; response: Response };
+        error.status = response.status;
+        error.response = response;
+        console.error(`API request failed for ${endpoint}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+        throw error;
       }
       
       return await response.json();
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+      // If error doesn't have a status property, it's likely a network error
+      const err = error as Error & { status?: number };
+      if (!err.status) {
+        console.error(`Network error for ${endpoint}:`, error);
+      }
       throw error;
     }
   }
@@ -55,17 +64,40 @@ class ApiService {
     } catch (error: unknown) {
       // Handle 401 errors by attempting to refresh the token
       const err = error as { status?: number };
-      if (err.status === 401 && !endpoint.includes('/auth/refresh/') && !skipAutoRefresh) {
+      console.log('[AuthenticatedFetch] Error caught:', {
+        endpoint,
+        errorStatus: err.status,
+        hasStatus: 'status' in (err as object),
+        skipAutoRefresh,
+        isRefreshEndpoint: endpoint === '/auth/refresh/',
+        shouldRefresh: err.status === 401 && endpoint !== '/auth/refresh/' && !skipAutoRefresh
+      });
+      
+      if (err.status === 401 && endpoint !== '/auth/refresh/' && !skipAutoRefresh) {
+        console.log('[AuthenticatedFetch] Token expired, attempting refresh...');
+        
         // If we're already refreshing, wait for that to complete
         if (this.isRefreshing && this.refreshPromise) {
-          await this.refreshPromise;
+          console.log('[AuthenticatedFetch] Waiting for existing refresh to complete...');
+          try {
+            await this.refreshPromise;
+            console.log('[AuthenticatedFetch] Existing refresh completed successfully');
+          } catch (refreshError) {
+            console.log('[AuthenticatedFetch] Existing refresh failed, not retrying request');
+            throw refreshError;
+          }
         } else {
           // Start refresh process
+          console.log('[AuthenticatedFetch] Starting new refresh process...');
           this.isRefreshing = true;
           this.refreshPromise = this.handleTokenRefresh();
           
           try {
             await this.refreshPromise;
+            console.log('[AuthenticatedFetch] Token refresh successful');
+          } catch (refreshError) {
+            console.log('[AuthenticatedFetch] Token refresh failed');
+            throw refreshError;
           } finally {
             this.isRefreshing = false;
             this.refreshPromise = null;
@@ -73,6 +105,7 @@ class ApiService {
         }
 
         // Retry the original request (cookies will be updated by refresh)
+        console.log('[AuthenticatedFetch] Retrying original request:', endpoint);
         return await this.fetchData<T>(endpoint, options);
       }
       
@@ -82,11 +115,14 @@ class ApiService {
 
   private async handleTokenRefresh(): Promise<void> {
     try {
+      console.log('[HandleTokenRefresh] Calling refresh token endpoint...');
       // With HTTP-only cookies, the refresh token is automatically sent
       // No need to retrieve it from storage
       await this.refreshToken();
+      console.log('[HandleTokenRefresh] Refresh token successful');
       // Server will set new cookies automatically
     } catch (error) {
+      console.error('[HandleTokenRefresh] Refresh token failed:', error);
       // If refresh fails, clear any authentication state
       authUtils.clearTokens();
       // Redirect to login or home page
@@ -239,13 +275,96 @@ class ApiService {
     return this.fetchData<BlogEntry>(`/blog/${id}/`);
   }
 
+  // Helper method to extract category IDs from BlogCategory objects or numbers
+  private extractCategoryIds(categories: (BlogCategory | number)[]): number[] {
+    return categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+  }
+
+  // Helper method to create FormData from blog entry
+  private createBlogFormData(entry: BlogEntryInput | Partial<BlogEntryInput>, isUpdate: boolean = false): FormData {
+    const formData = new FormData();
+    
+    if (isUpdate) {
+      // For updates, only add fields that are defined
+      if (entry.title) formData.append('title', entry.title);
+      if (entry.content) formData.append('content', entry.content);
+      if (entry.excerpt !== undefined) formData.append('excerpt', entry.excerpt);
+      if (entry.published !== undefined) formData.append('published', String(entry.published));
+      
+      // Handle categories array
+      if (entry.categories !== undefined && entry.categories.length > 0) {
+        const categoryIds = this.extractCategoryIds(entry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
+        });
+      }
+      // Fallback to single category for backward compatibility
+      else if (entry.category !== undefined) {
+        formData.append('categories', String(entry.category));
+      }
+    } else {
+      // For creation, all required fields must be present
+      const fullEntry = entry as BlogEntryInput;
+      formData.append('title', fullEntry.title);
+      formData.append('content', fullEntry.content);
+      if (fullEntry.excerpt) formData.append('excerpt', fullEntry.excerpt);
+      formData.append('published', String(fullEntry.published));
+      
+      // Handle categories array
+      if (fullEntry.categories !== undefined && fullEntry.categories.length > 0) {
+        const categoryIds = this.extractCategoryIds(fullEntry.categories);
+        categoryIds.forEach(id => {
+          formData.append('categories', String(id));
+        });
+      }
+      // Fallback to single category for backward compatibility
+      else if (fullEntry.category !== undefined) {
+        formData.append('categories', String(fullEntry.category));
+      }
+    }
+    
+    // Add featured_image if it's a File
+    if (entry.featured_image instanceof File) {
+      formData.append('featured_image', entry.featured_image);
+    }
+    
+    return formData;
+  }
+
   async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.createBlogEntry(entry);
     }
-    return this.authenticatedFetch<BlogEntry>('/blog/', {
+    
+    // Check if featured_image is a File object
+    if (entry.featured_image instanceof File) {
+      const formData = this.createBlogFormData(entry, false);
+      
+      return await this.authenticatedFetch<BlogEntry>('/blog/', {
+        method: 'POST',
+        body: formData,
+        headers: {}, // Don't set Content-Type, browser will set it with boundary
+      });
+    }
+    
+    // Prepare JSON body with categories array
+    const body: Record<string, unknown> = {
+      title: entry.title,
+      content: entry.content,
+      excerpt: entry.excerpt,
+      published: entry.published,
+    };
+    
+    // Handle categories
+    if (entry.categories !== undefined && entry.categories.length > 0) {
+      body.categories = this.extractCategoryIds(entry.categories);
+    } else if (entry.category !== undefined) {
+      body.categories = [entry.category];
+    }
+    
+    return await this.authenticatedFetch<BlogEntry>('/blog/', {
       method: 'POST',
-      body: JSON.stringify(entry),
+      body: JSON.stringify(body),
     });
   }
 
@@ -253,9 +372,36 @@ class ApiService {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.updateBlogEntry(id, entry);
     }
-    return this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+    
+    // Check if featured_image is a File object
+    if (entry.featured_image instanceof File) {
+      const formData = this.createBlogFormData(entry, true);
+      
+      return await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {}, // Don't set Content-Type, browser will set it with boundary
+      });
+    }
+    
+    // Prepare JSON body with categories array
+    const body: Record<string, unknown> = {};
+    
+    if (entry.title !== undefined) body.title = entry.title;
+    if (entry.content !== undefined) body.content = entry.content;
+    if (entry.excerpt !== undefined) body.excerpt = entry.excerpt;
+    if (entry.published !== undefined) body.published = entry.published;
+    
+    // Handle categories
+    if (entry.categories !== undefined && entry.categories.length > 0) {
+      body.categories = this.extractCategoryIds(entry.categories);
+    } else if (entry.category !== undefined) {
+      body.categories = [entry.category];
+    }
+    
+    return await this.authenticatedFetch<BlogEntry>(`/blog/${id}/`, {
       method: 'PATCH',
-      body: JSON.stringify(entry),
+      body: JSON.stringify(body),
     });
   }
 
@@ -272,7 +418,18 @@ class ApiService {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.getBlogCategories();
     }
-    return this.fetchData<BlogCategory[]>('/blog/categories/');
+    return this.fetchData<BlogCategory[]>('/categories/');
+  }
+
+  async createCategory(categoryName: string): Promise<BlogCategory> {
+    if (USE_MOCK_BLOG_API) {
+      // Mock implementation
+      return Promise.resolve({ id: Date.now(), name: categoryName, slug: categoryName.toLowerCase().replace(/\s+/g, '-') });
+    }
+    return this.authenticatedFetch<BlogCategory>('/categories/', {
+      method: 'POST',
+      body: JSON.stringify({ category: categoryName }),
+    });
   }
 }
 

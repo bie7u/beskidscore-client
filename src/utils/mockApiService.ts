@@ -4,6 +4,11 @@ import blogData from '../mock-data/blogEntries.json';
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper function to extract category IDs from BlogCategory objects or numbers
+const extractCategoryIds = (categories: (BlogCategory | number)[]): number[] => {
+  return categories.map(cat => typeof cat === 'number' ? cat : cat.id);
+};
+
 // Mock storage for blog entries (will be lost on page refresh)
 const mockBlogEntries: BlogEntry[] = [...blogData.entries];
 let nextId = Math.max(...mockBlogEntries.map(e => e.id)) + 1;
@@ -86,19 +91,37 @@ export const mockApiService = {
   async createBlogEntry(entry: BlogEntryInput): Promise<BlogEntry> {
     await delay(600);
     
-    const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
+    // Get categories from entry
+    let categoryIds: number[] = [];
+    if (entry.categories && entry.categories.length > 0) {
+      categoryIds = extractCategoryIds(entry.categories);
+    } else if (entry.category) {
+      categoryIds = [entry.category];
+    }
+    
+    const category = categoryIds.length > 0 ? mockCategories.find(c => c.id === categoryIds[0]) : undefined;
+    
+    // Convert File to URL for mock purposes
+    let featuredImageUrl = entry.featured_image;
+    if (entry.featured_image instanceof File) {
+      // For mock purposes, create a placeholder URL
+      featuredImageUrl = `https://via.placeholder.com/800x400?text=${encodeURIComponent(entry.featured_image.name)}`;
+    }
     
     const newEntry: BlogEntry = {
       id: nextId++,
-      ...entry,
+      title: entry.title,
       slug: entry.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+      content: entry.content,
       author: 1, // Admin user
       author_name: 'Admin User',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      published: entry.published,
       excerpt: entry.excerpt || '',
-      featured_image: entry.featured_image || '',
-      category: entry.category,
+      featured_image: typeof featuredImageUrl === 'string' ? featuredImageUrl : '',
+      categories: categoryIds,
+      category: categoryIds.length > 0 ? categoryIds[0] : undefined,
       category_name: category?.name,
     };
     
@@ -120,11 +143,29 @@ export const mockApiService = {
       throw new Error('Blog entry not found');
     }
     
-    const category = entry.category ? mockCategories.find(c => c.id === entry.category) : undefined;
+    // Get categories from entry
+    let categoryIds: number[] | undefined;
+    if (entry.categories && entry.categories.length > 0) {
+      categoryIds = extractCategoryIds(entry.categories);
+    } else if (entry.category) {
+      categoryIds = [entry.category];
+    }
+    
+    const category = categoryIds && categoryIds.length > 0 ? mockCategories.find(c => c.id === categoryIds[0]) : undefined;
+    
+    // Convert File to URL for mock purposes
+    let featuredImageUrl = entry.featured_image;
+    if (entry.featured_image instanceof File) {
+      // For mock purposes, create a placeholder URL
+      featuredImageUrl = `https://via.placeholder.com/800x400?text=${encodeURIComponent(entry.featured_image.name)}`;
+    }
     
     const updatedEntry: BlogEntry = {
       ...mockBlogEntries[index],
       ...entry,
+      featured_image: typeof featuredImageUrl === 'string' ? featuredImageUrl : mockBlogEntries[index].featured_image,
+      categories: categoryIds || mockBlogEntries[index].categories,
+      category: categoryIds && categoryIds.length > 0 ? categoryIds[0] : mockBlogEntries[index].category,
       category_name: category?.name || mockBlogEntries[index].category_name,
       updated_at: new Date().toISOString(),
     };

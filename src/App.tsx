@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Live from './pages/Live';
 import MatchDetailsPage from './pages/MatchDetails';
 import LeagueOverview from './pages/LeagueOverview';
+import Blog from './pages/Blog';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import BlogManagement from './pages/admin/BlogManagement';
 import BlogEditor from './pages/admin/BlogEditor';
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/live" element={<Live />} />
                 <Route path="/match/:matchId" element={<MatchDetailsPage />} />
                 <Route path="/leagues" element={<LeagueOverview />} />
+                <Route path="/blog" element={<Blog />} />
                 
                 {/* Admin Routes */}
                 <Route

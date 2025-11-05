@@ -102,7 +102,7 @@
       "author_name": "Jan Kowalski",
       "created_at": "2025-01-03T09:00:00Z",
       "updated_at": "2025-01-03T10:00:00Z",
-      "published": false,
+      "published": true,
       "featured_image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800",
       "category": 5,
       "category_name": "Zapowiedzi"
@@ -117,7 +117,7 @@
       "author_name": "Anna Nowak",
       "created_at": "2025-01-01T10:00:00Z",
       "updated_at": "2025-01-02T14:30:00Z",
-      "published": false,
+      "published": true,
       "featured_image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800",
       "category": 6,
       "category_name": "Historia"

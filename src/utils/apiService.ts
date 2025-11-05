@@ -261,11 +261,26 @@ class ApiService {
   }
 
   // Blog
-  async getBlogEntries(): Promise<BlogEntry[]> {
+  async getBlogEntries(filters: {
+    category?: number;
+    published?: boolean;
+    page?: number;
+    page_size?: number;
+  } = {}): Promise<BlogEntry[]> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.getBlogEntries();
     }
-    return this.fetchData<BlogEntry[]>('/blog/');
+    
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, value.toString());
+      }
+    });
+    
+    const queryString = params.toString();
+    return this.fetchData<BlogEntry[]>(`/blog/${queryString ? '?' + queryString : ''}`);
   }
 
   async getBlogEntry(id: number): Promise<BlogEntry> {

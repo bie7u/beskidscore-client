@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Trophy, Radio } from 'lucide-react';
+import { Home, Trophy, Radio, FileText } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Strona główna' },
     { to: '/live', icon: Radio, label: 'Na żywo' },
     { to: '/leagues', icon: Trophy, label: 'Ligi' },
+    { to: '/blog', icon: FileText, label: 'Blog' },
   ];
 
   return (

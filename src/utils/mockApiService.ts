@@ -70,11 +70,46 @@ export const mockApiService = {
   },
 
   // Blog
-  async getBlogEntries(): Promise<BlogEntry[]> {
+  async getBlogEntries(filters?: {
+    category?: number;
+    published?: boolean;
+    page?: number;
+    page_size?: number;
+  }): Promise<BlogEntry[]> {
     await delay(500);
-    return [...mockBlogEntries].sort((a, b) => 
+    
+    let filteredEntries = [...mockBlogEntries];
+    
+    // Filter by published status
+    if (filters?.published !== undefined) {
+      filteredEntries = filteredEntries.filter(e => e.published === filters.published);
+    }
+    
+    // Filter by category
+    if (filters?.category !== undefined) {
+      filteredEntries = filteredEntries.filter(e => {
+        // Check if entry has categories array
+        if (e.categories && e.categories.length > 0) {
+          return e.categories.includes(filters.category as number);
+        }
+        // Fallback to single category field
+        return e.category === filters.category;
+      });
+    }
+    
+    // Sort by creation date (newest first)
+    filteredEntries.sort((a, b) => 
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
+    
+    // Apply pagination
+    if (filters?.page && filters?.page_size) {
+      const startIndex = (filters.page - 1) * filters.page_size;
+      const endIndex = startIndex + filters.page_size;
+      filteredEntries = filteredEntries.slice(startIndex, endIndex);
+    }
+    
+    return filteredEntries;
   },
 
   async getBlogEntry(id: number): Promise<BlogEntry> {

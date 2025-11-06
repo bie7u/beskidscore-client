@@ -141,3 +141,31 @@ export interface MatchFilters {
   status?: MatchStatus;
   date?: DateFilter;
 }
+
+// Blog interfaces
+export interface BlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+  color?: string;
+}
+
+export interface BlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  category: BlogCategory;
+  author: string;
+  publishedAt: string;
+  readTime: number; // in minutes
+  imageUrl?: string;
+  tags: string[];
+}
+
+export interface BlogListProps {
+  posts: BlogPost[];
+  selectedCategory?: number;
+  onCategorySelect: (categoryId: number | null) => void;
+}

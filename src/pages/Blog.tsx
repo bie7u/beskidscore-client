@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { apiService } from '../utils/apiService';
-import type { BlogEntry, BlogCategory } from '../utils/types';
+import type { BlogEntry, BlogCategory, PaginatedResponse } from '../utils/types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Blog: React.FC = () => {
@@ -56,7 +56,7 @@ const Blog: React.FC = () => {
       // Check if the response is a paginated object or a plain array
       if (data && typeof data === 'object' && 'results' in data) {
         // Paginated response from Django REST Framework
-        const paginatedData = data as { count: number; next: string | null; previous: string | null; results: typeof entries };
+        const paginatedData = data as PaginatedResponse<BlogEntry>;
         setEntries(paginatedData.results);
         
         // Calculate total pages from the count
@@ -64,7 +64,7 @@ const Blog: React.FC = () => {
         setTotalPages(totalPageCount);
       } else {
         // Plain array response (legacy or mock API)
-        const arrayData = data as typeof entries;
+        const arrayData = data as BlogEntry[];
         setEntries(arrayData);
         
         // Calculate total pages based on returned data

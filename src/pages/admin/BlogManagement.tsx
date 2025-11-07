@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, Eye, EyeOff, ArrowLeft, FolderOpen } from 'lucide-react';
 import { apiService } from '../../utils/apiService';
-import type { BlogEntry } from '../../utils/types';
+import type { BlogEntry, PaginatedResponse } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const BlogManagement: React.FC = () => {
@@ -22,7 +22,7 @@ const BlogManagement: React.FC = () => {
       // Check if the response is a paginated object or a plain array
       if (data && typeof data === 'object' && 'results' in data) {
         // Paginated response from Django REST Framework
-        const paginatedData = data as { results: BlogEntry[] };
+        const paginatedData = data as PaginatedResponse<BlogEntry>;
         setEntries(paginatedData.results);
       } else {
         // Plain array response (legacy or mock API)

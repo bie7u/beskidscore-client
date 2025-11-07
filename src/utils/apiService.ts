@@ -268,7 +268,7 @@ class ApiService {
     page_size?: number;
   } = {}): Promise<BlogEntry[]> {
     if (USE_MOCK_BLOG_API) {
-      return mockApiService.getBlogEntries();
+      return mockApiService.getBlogEntries(filters);
     }
     
     const params = new URLSearchParams();

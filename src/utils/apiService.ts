@@ -1,4 +1,4 @@
-import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput, BlogCategory } from './types';
+import type { League, Team, Match, MatchEvent, Standing, Round, Season, LoginCredentials, AuthTokens, User, BlogEntry, BlogEntryInput, BlogCategory, PaginatedResponse } from './types';
 import { authUtils } from './authUtils';
 import { mockApiService } from './mockApiService';
 
@@ -266,7 +266,7 @@ class ApiService {
     published?: boolean;
     page?: number;
     page_size?: number;
-  } = {}): Promise<BlogEntry[]> {
+  } = {}): Promise<PaginatedResponse<BlogEntry> | BlogEntry[]> {
     if (USE_MOCK_BLOG_API) {
       return mockApiService.getBlogEntries();
     }
@@ -280,7 +280,11 @@ class ApiService {
     });
     
     const queryString = params.toString();
-    return this.fetchData<BlogEntry[]>(`/blog/${queryString ? '?' + queryString : ''}`);
+    const response = await this.fetchData<PaginatedResponse<BlogEntry> | BlogEntry[]>(`/blog/${queryString ? '?' + queryString : ''}`);
+    
+    // The API might return either a paginated response object or a plain array
+    // We'll return it as-is and let the caller handle it
+    return response;
   }
 
   async getBlogEntry(id: number): Promise<BlogEntry> {

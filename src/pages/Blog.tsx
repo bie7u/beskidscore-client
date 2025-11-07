@@ -52,16 +52,30 @@ const Blog: React.FC = () => {
       }
 
       const data = await apiService.getBlogEntries(filters);
-      setEntries(data);
       
-      // Calculate total pages based on returned data
-      // Note: This is a simple approach. Ideally, the API should return total count
-      // For now, we'll assume if we get less than pageSize, it's the last page
-      if (data.length < pageSize) {
-        setTotalPages(currentPage);
+      // Check if the response is a paginated object or a plain array
+      if (data && typeof data === 'object' && 'results' in data) {
+        // Paginated response from Django REST Framework
+        const paginatedData = data as { count: number; next: string | null; previous: string | null; results: typeof entries };
+        setEntries(paginatedData.results);
+        
+        // Calculate total pages from the count
+        const totalPageCount = Math.ceil(paginatedData.count / pageSize);
+        setTotalPages(totalPageCount);
       } else {
-        // We don't know the exact total, so we just enable next page
-        setTotalPages(currentPage + 1);
+        // Plain array response (legacy or mock API)
+        const arrayData = data as typeof entries;
+        setEntries(arrayData);
+        
+        // Calculate total pages based on returned data
+        // Note: This is a simple approach. Ideally, the API should return total count
+        // For now, we'll assume if we get less than pageSize, it's the last page
+        if (arrayData.length < pageSize) {
+          setTotalPages(currentPage);
+        } else {
+          // We don't know the exact total, so we just enable next page
+          setTotalPages(currentPage + 1);
+        }
       }
       
       setError('');

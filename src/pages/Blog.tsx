@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, User, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Calendar, User, ChevronLeft, ChevronRight, Loader2, Clock } from 'lucide-react';
 import { apiService } from '../utils/apiService';
 import type { BlogEntry, BlogCategory, PaginatedResponse } from '../utils/types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -120,6 +120,14 @@ const Blog: React.FC = () => {
     return plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText;
   };
 
+  const calculateReadTime = (content: string) => {
+    const plainText = stripHtmlTags(content);
+    const wordsPerMinute = 200;
+    const words = plainText.split(/\s+/).length;
+    const minutes = Math.ceil(words / wordsPerMinute);
+    return minutes;
+  };
+
   if (loading && entries.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -129,26 +137,26 @@ const Blog: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
           Blog
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Najnowsze wiadomości, analizy i relacje ze świata piłki nożnej
         </p>
       </div>
 
       {/* Category Filter */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
+      <div className="mb-8">
+        <div className="flex flex-wrap gap-3 justify-center">
           <button
             onClick={() => handleCategoryChange(null)}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-6 py-2.5 rounded-full transition-all duration-200 font-medium ${
               selectedCategory === null
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/50 scale-105'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
             }`}
           >
             Wszystkie
@@ -157,10 +165,10 @@ const Blog: React.FC = () => {
             <button
               key={category.id}
               onClick={() => handleCategoryChange(category.id)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-6 py-2.5 rounded-full transition-all duration-200 font-medium ${
                 selectedCategory === category.id
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/50 scale-105'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
               }`}
             >
               {category.name}
@@ -190,70 +198,78 @@ const Blog: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1">
           {entries.map((entry) => (
             <article
               key={entry.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              <div className="md:flex">
-                {/* Featured Image */}
-                {entry.featured_image && (
-                  <div className="md:w-1/3 md:flex-shrink-0">
-                    <img
-                      src={entry.featured_image}
-                      alt={entry.title}
-                      className="h-48 w-full object-cover md:h-full"
-                    />
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className="p-6 flex-1">
-                  {/* Category Badge */}
-                  {entry.category_name && (
-                    <div className="mb-3">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-200">
-                        {entry.category_name}
-                      </span>
+              <Link to={`/blog/${entry.id}`} className="block">
+                <div className="lg:flex">
+                  {/* Featured Image with Overlay */}
+                  {entry.featured_image && (
+                    <div className="relative lg:w-2/5 flex-shrink-0 overflow-hidden">
+                      <img
+                        src={entry.featured_image}
+                        alt={entry.title}
+                        className="h-64 lg:h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent lg:bg-gradient-to-r"></div>
+                      {/* Category Badge on Image */}
+                      {entry.category_name && (
+                        <div className="absolute top-4 left-4">
+                          <span className="inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold bg-white/90 dark:bg-gray-900/90 text-gray-900 dark:text-white backdrop-blur-sm shadow-lg">
+                            {entry.category_name}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Title */}
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                    <Link to={`/blog/${entry.id}`}>
+                  {/* Content */}
+                  <div className="p-8 flex-1 flex flex-col">
+                    {/* Title */}
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {entry.title}
-                    </Link>
-                  </h2>
+                    </h2>
 
-                  {/* Excerpt */}
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                    {getExcerpt(entry)}
-                  </p>
+                    {/* Excerpt */}
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 leading-relaxed flex-grow">
+                      {getExcerpt(entry)}
+                    </p>
 
-                  {/* Meta Information */}
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center space-x-1">
-                      <User className="h-4 w-4" />
-                      <span>{entry.author_name || `Autor #${entry.author}`}</span>
+                    {/* Meta Information */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <span className="font-medium">{entry.author_name || `Autor #${entry.author}`}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+                          <Calendar className="h-4 w-4" />
+                        </div>
+                        <span>{formatDate(entry.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+                          <Clock className="h-4 w-4" />
+                        </div>
+                        <span>{calculateReadTime(entry.content)} min czytania</span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{formatDate(entry.created_at)}</span>
-                    </div>
-                  </div>
 
-                  {/* Read More Link */}
-                  <div className="mt-4">
-                    <Link
-                      to={`/blog/${entry.id}`}
-                      className="inline-flex items-center text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-                    >
-                      Czytaj więcej →
-                    </Link>
+                    {/* Read More Link */}
+                    <div className="mt-4">
+                      <span className="inline-flex items-center text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-semibold group-hover:gap-2 transition-all">
+                        Czytaj więcej 
+                        <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </article>
           ))}
         </div>
@@ -261,13 +277,13 @@ const Blog: React.FC = () => {
 
       {/* Pagination */}
       {!loading && entries.length > 0 && totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center space-x-2">
+        <div className="mt-12 flex items-center justify-center space-x-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="flex items-center space-x-1 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-5 py-3 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-700 hover:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 disabled:hover:border-gray-300 dark:disabled:hover:border-gray-600 transition-all duration-200 font-medium"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
             <span>Poprzednia</span>
           </button>
 
@@ -289,10 +305,10 @@ const Blog: React.FC = () => {
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  className={`min-w-[3rem] px-4 py-3 rounded-lg transition-all duration-200 font-medium ${
                     currentPage === pageNum
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/50 scale-110'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-700 hover:border-primary-500 hover:scale-105'
                   }`}
                 >
                   {pageNum}
@@ -304,10 +320,10 @@ const Blog: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center space-x-1 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-5 py-3 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-700 hover:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 disabled:hover:border-gray-300 dark:disabled:hover:border-gray-600 transition-all duration-200 font-medium"
           >
             <span>Następna</span>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       )}

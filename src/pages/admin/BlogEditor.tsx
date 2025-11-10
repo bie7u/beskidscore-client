@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, Plus } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -348,22 +349,37 @@ const BlogEditor: React.FC = () => {
         {/* Content */}
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Treść * (obsługuje Markdown i HTML)
+            Treść * (edytor HTML)
           </label>
-          <div data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
-            <MDEditor
+          <div className="bg-white dark:bg-gray-700 rounded-lg">
+            <ReactQuill
+              theme="snow"
               value={formData.content}
               onChange={handleContentChange}
-              preview="edit"
-              height={400}
-              textareaProps={{
-                disabled: saving,
-                placeholder: 'Wprowadź treść wpisu używając Markdown...'
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                  [{ 'indent': '-1'}, { 'indent': '+1' }],
+                  ['link', 'image'],
+                  [{ 'align': [] }],
+                  ['clean']
+                ]
               }}
+              formats={[
+                'header',
+                'bold', 'italic', 'underline', 'strike',
+                'list', 'bullet', 'indent',
+                'link', 'image', 'align'
+              ]}
+              placeholder="Wprowadź treść wpisu używając edytora HTML..."
+              readOnly={saving}
+              style={{ height: '400px', marginBottom: '42px' }}
             />
           </div>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Obsługuje formatowanie Markdown: **pogrubienie**, *kursywa*, # nagłówki, [linki](url), ![obrazy](url)
+            Używaj paska narzędzi do formatowania tekstu w HTML
           </p>
         </div>
 

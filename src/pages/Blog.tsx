@@ -221,7 +221,7 @@ const Blog: React.FC = () => {
 
                   {/* Title */}
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                    <Link to={`/blog/${entry.slug || entry.id}`}>
+                    <Link to={`/blog/${entry.id}`}>
                       {entry.title}
                     </Link>
                   </h2>
@@ -246,7 +246,7 @@ const Blog: React.FC = () => {
                   {/* Read More Link */}
                   <div className="mt-4">
                     <Link
-                      to={`/blog/${entry.slug || entry.id}`}
+                      to={`/blog/${entry.id}`}
                       className="inline-flex items-center text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
                     >
                       Czytaj więcej →

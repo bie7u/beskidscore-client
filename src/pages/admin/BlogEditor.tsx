@@ -5,6 +5,7 @@ import MDEditor from '@uiw/react-md-editor';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import MultiSelectDropdown from '../../components/common/MultiSelectDropdown';
 
 const BlogEditor: React.FC = () => {
   const navigate = useNavigate();
@@ -313,45 +314,18 @@ const BlogEditor: React.FC = () => {
             </div>
           )}
           
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((category) => (
-              <label
-                key={category.id}
-                className="flex items-center space-x-2 p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.some(c => c.id === category.id)}
-                  onChange={() => handleCategoryToggle(category)}
-                  disabled={saving}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
-                <span className="text-sm text-gray-900 dark:text-white">
-                  {category.name}
-                </span>
-              </label>
-            ))}
-          </div>
+          {/* Multi-select dropdown */}
+          <MultiSelectDropdown
+            categories={categories}
+            selectedCategories={selectedCategories}
+            onToggleCategory={handleCategoryToggle}
+            disabled={saving}
+            placeholder="Wybierz kategorie..."
+          />
           
-          {selectedCategories.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {selectedCategories.map((category) => (
-                <span
-                  key={category.id}
-                  className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-200"
-                >
-                  <span>{category.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryToggle(category)}
-                    className="hover:text-primary-900 dark:hover:text-primary-100"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Możesz wybrać wiele kategorii dla tego wpisu. Slug kategorii (np. "{(categories && categories.length > 0) ? categories[0].slug : 'relacje-z-meczy'}") jest używany w adresach URL.
+          </p>
         </div>
 
         {/* Excerpt */}

@@ -423,12 +423,30 @@ class ApiService {
 
   async createCategory(categoryName: string): Promise<BlogCategory> {
     if (USE_MOCK_BLOG_API) {
-      // Mock implementation
-      return Promise.resolve({ id: Date.now(), name: categoryName, slug: categoryName.toLowerCase().replace(/\s+/g, '-') });
+      return mockApiService.createCategory(categoryName);
     }
     return this.authenticatedFetch<BlogCategory>('/categories/', {
       method: 'POST',
       body: JSON.stringify({ category: categoryName }),
+    });
+  }
+
+  async updateCategory(id: number, categoryName: string): Promise<BlogCategory> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.updateCategory(id, categoryName);
+    }
+    return this.authenticatedFetch<BlogCategory>(`/categories/${id}/`, {
+      method: 'PUT',
+      body: JSON.stringify({ category: categoryName }),
+    });
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    if (USE_MOCK_BLOG_API) {
+      return mockApiService.deleteCategory(id);
+    }
+    return this.authenticatedFetch<void>(`/categories/${id}/`, {
+      method: 'DELETE',
     });
   }
 }

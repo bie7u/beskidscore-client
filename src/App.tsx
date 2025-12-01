@@ -11,6 +11,7 @@ import LeagueOverview from './pages/LeagueOverview';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import BlogManagement from './pages/admin/BlogManagement';
 import BlogEditor from './pages/admin/BlogEditor';
+import CategoryManagement from './pages/admin/CategoryManagement';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -42,6 +43,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <BlogManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/blog/categories"
+                  element={
+                    <ProtectedRoute>
+                      <CategoryManagement />
                     </ProtectedRoute>
                   }
                 />

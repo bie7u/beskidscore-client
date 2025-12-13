@@ -141,3 +141,73 @@ export interface MatchFilters {
   status?: MatchStatus;
   date?: DateFilter;
 }
+
+// Authentication types
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: 'admin' | 'editor';
+}
+
+export interface AuthTokens {
+  access: string;
+  refresh: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  tokens: AuthTokens | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  refreshAccessToken: () => Promise<void>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+// Blog types
+export interface BlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface BlogEntry {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  author: number;
+  author_name?: string;
+  created_at: string;
+  updated_at: string;
+  published: boolean;
+  featured_image?: string;
+  categories?: number[];
+  category?: number;
+  category_name?: string;
+}
+
+export interface BlogEntryInput {
+  title: string;
+  content: string;
+  excerpt?: string;
+  published: boolean;
+  featured_image?: string | File;
+  categories?: BlogCategory[];
+  category?: number;
+}
+
+// Paginated response type for Django REST Framework pagination
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}

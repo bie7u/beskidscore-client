@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
 import type { BlogEntry } from '../utils/types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { apiService } from '../utils/apiService';
@@ -139,7 +138,7 @@ const BlogDetail: React.FC = () => {
 
           {/* Content */}
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            <MDEditor.Markdown source={entry.content} />
+            <div dangerouslySetInnerHTML={{ __html: entry.content }} />
           </div>
         </div>
       </article>

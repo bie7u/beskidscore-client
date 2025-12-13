@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, Plus } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import { apiService } from '../../utils/apiService';
 import type { BlogEntryInput, BlogCategory } from '../../utils/types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -29,6 +30,27 @@ const BlogEditor: React.FC = () => {
     featured_image: '',
     categories: [],
   });
+
+  // Initialize Tiptap editor
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: formData.content,
+    editable: !saving,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      setFormData((prev) => ({
+        ...prev,
+        content: html,
+      }));
+    },
+  });
+
+  // Update editor content when formData.content changes (e.g., when loading an entry)
+  useEffect(() => {
+    if (editor && formData.content !== editor.getHTML()) {
+      editor.commands.setContent(formData.content);
+    }
+  }, [formData.content, editor]);
 
   useEffect(() => {
     loadCategories();
@@ -155,13 +177,6 @@ const BlogEditor: React.FC = () => {
       featured_image: '',
     }));
     setImagePreview('');
-  };
-
-  const handleContentChange = (value: string | undefined) => {
-    setFormData((prev) => ({
-      ...prev,
-      content: value || '',
-    }));
   };
 
   const handleCategoryToggle = (category: BlogCategory) => {
@@ -348,22 +363,103 @@ const BlogEditor: React.FC = () => {
         {/* Content */}
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Treść * (obsługuje Markdown i HTML)
+            Treść * (edytor HTML)
           </label>
-          <div data-color-mode={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
-            <MDEditor
-              value={formData.content}
-              onChange={handleContentChange}
-              preview="edit"
-              height={400}
-              textareaProps={{
-                disabled: saving,
-                placeholder: 'Wprowadź treść wpisu używając Markdown...'
-              }}
-            />
+          <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            {/* Toolbar */}
+            <div className="bg-gray-50 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600 p-2 flex flex-wrap gap-1">
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBold().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('bold') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                <strong>B</strong>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleItalic().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('italic') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                <em>I</em>
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleStrike().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('strike') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                <s>S</s>
+              </button>
+              <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('heading', { level: 1 }) ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                H1
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('heading', { level: 2 }) ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('heading', { level: 3 }) ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                H3
+              </button>
+              <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('bulletList') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                • Lista
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('orderedList') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                1. Lista
+              </button>
+              <div className="w-px bg-gray-300 dark:bg-gray-500 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                disabled={saving}
+                className={`px-3 py-1 rounded ${editor?.isActive('blockquote') ? 'bg-primary-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200'} border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50`}
+              >
+                Cytat
+              </button>
+              <button
+                type="button"
+                onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+                disabled={saving}
+                className="px-3 py-1 rounded bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500 disabled:opacity-50"
+              >
+                ─ Linia
+              </button>
+            </div>
+            
+            {/* Editor */}
+            <div className="prose prose-lg dark:prose-invert max-w-none p-4 min-h-[400px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+              <EditorContent editor={editor} />
+            </div>
           </div>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Obsługuje formatowanie Markdown: **pogrubienie**, *kursywa*, # nagłówki, [linki](url), ![obrazy](url)
+            Używaj paska narzędzi do formatowania tekstu w HTML
           </p>
         </div>
 

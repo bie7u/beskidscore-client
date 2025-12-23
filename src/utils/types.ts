@@ -203,3 +203,11 @@ export interface BlogEntryInput {
   categories?: BlogCategory[];
   category?: number;
 }
+
+// Paginated response type for Django REST Framework pagination
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}

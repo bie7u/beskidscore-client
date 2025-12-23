@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { apiService } from '../utils/apiService';
-import type { BlogEntry, BlogCategory } from '../utils/types';
+import type { BlogEntry, BlogCategory, PaginatedResponse } from '../utils/types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Blog: React.FC = () => {
@@ -52,16 +52,30 @@ const Blog: React.FC = () => {
       }
 
       const data = await apiService.getBlogEntries(filters);
-      setEntries(data);
       
-      // Calculate total pages based on returned data
-      // Note: This is a simple approach. Ideally, the API should return total count
-      // For now, we'll assume if we get less than pageSize, it's the last page
-      if (data.length < pageSize) {
-        setTotalPages(currentPage);
+      // Check if the response is a paginated object or a plain array
+      if (data && typeof data === 'object' && 'results' in data) {
+        // Paginated response from Django REST Framework
+        const paginatedData = data as PaginatedResponse<BlogEntry>;
+        setEntries(paginatedData.results);
+        
+        // Calculate total pages from the count
+        const totalPageCount = Math.ceil(paginatedData.count / pageSize);
+        setTotalPages(totalPageCount);
       } else {
-        // We don't know the exact total, so we just enable next page
-        setTotalPages(currentPage + 1);
+        // Plain array response (legacy or mock API)
+        const arrayData = data as BlogEntry[];
+        setEntries(arrayData);
+        
+        // Calculate total pages based on returned data
+        // Note: This is a simple approach. Ideally, the API should return total count
+        // For now, we'll assume if we get less than pageSize, it's the last page
+        if (arrayData.length < pageSize) {
+          setTotalPages(currentPage);
+        } else {
+          // We don't know the exact total, so we just enable next page
+          setTotalPages(currentPage + 1);
+        }
       }
       
       setError('');
@@ -207,7 +221,7 @@ const Blog: React.FC = () => {
 
                   {/* Title */}
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                    <Link to={`/blog/${entry.slug || entry.id}`}>
+                    <Link to={`/blog/${entry.id}`}>
                       {entry.title}
                     </Link>
                   </h2>
@@ -232,7 +246,7 @@ const Blog: React.FC = () => {
                   {/* Read More Link */}
                   <div className="mt-4">
                     <Link
-                      to={`/blog/${entry.slug || entry.id}`}
+                      to={`/blog/${entry.id}`}
                       className="inline-flex items-center text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
                     >
                       Czytaj więcej →
